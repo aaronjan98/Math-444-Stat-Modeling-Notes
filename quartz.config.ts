@@ -16,7 +16,7 @@ const config: QuartzConfig = {
       provider: "plausible",
     },
     locale: "en-US",
-    baseUrl: "https://aaronjan98.github.io/Math-444-Stat-Modeling-Notes",
+    baseUrl: "aaronjan98.github.io/Math-444-Stat-Modeling-Notes",
     ignorePatterns: ["private", "templates", ".obsidian"],
     defaultDateType: "modified",
     theme: {
