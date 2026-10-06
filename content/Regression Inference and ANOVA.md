@@ -1,7 +1,7 @@
-# Exam 1 - Regression Inference and ANOVA
+# Regression Inference and ANOVA
 
-- Parent: [[Exam 1 Study Guide (Math 444)]]
-- Triage coverage
+- Parent: [[Exam 1]]
+- Problem types covered
 	- **Type 5:** $R^2$ — compute and interpret
 	- **Type 6:** inference on the slope and intercept
 	- **Type 7:** ANOVA / $F$ test
@@ -29,7 +29,7 @@
 		- only $n-2$ independent residual directions remain for estimating error variation
 
 1. **Inference for the slope**
-	- From [[Exam 1 - Regression Estimator Properties]],
+	- From [[Regression Estimator Properties]],
 		- $\displaystyle \operatorname{Var}(\hat\beta_1)=\frac{\sigma^2}{S_{xx}}.$
 	- Replace unknown $\sigma$ by $S$.
 		- $\displaystyle SE(\hat\beta_1)=\frac{S}{\sqrt{S_{xx}}}.$
@@ -91,7 +91,7 @@
 		- therefore a prediction interval is always wider than the CI for the mean response at the same $x_0$
 
 1. **$R^2$ from the sum-of-squares decomposition**
-	- From [[Exam 1 - Residual and Sum-of-Squares Proofs]],
+	- From [[Residual and Sum-of-Squares Proofs]],
 		- $\displaystyle SST=SS_{reg}+RSS.$
 	- Define the fraction of total variation explained by the regression.
 		- $\displaystyle \boxed{R^2=\frac{SS_{reg}}{SST}}$
@@ -122,7 +122,6 @@
 		- df: $n-1$
 	- $F$ statistic
 		- $\displaystyle \boxed{F=\frac{MS_{reg}}{MSE}}$
-	- The professor explicitly emphasized being able to fill in missing ANOVA-table entries.
 
 1. **How to reconstruct a partially blank ANOVA table**
 	- First identify $n$ from the degrees of freedom if possible.
@@ -194,11 +193,3 @@
 	- Forgetting that a prediction interval has an extra $1$ under the square root.
 	- Using the $F=t^2$ identity for a slope null other than $0$ without checking what hypothesis the overall $F$ test actually represents.
 	- Forgetting that the ANOVA regression row has df $1$ only because this is **simple** linear regression with one predictor.
-
-1. **Cold-recall checklist**
-	- Can I derive $S^2=RSS/(n-2)$ and explain the degrees of freedom?
-	- Can I build the slope $t$ statistic from estimate, null value, and SE?
-	- Can I explain the difference between mean-response CI and individual PI?
-	- Can I derive both forms of $R^2$ from the SST decomposition?
-	- Can I fill every ANOVA-table cell from SS, df, MS, and $F$ relationships?
-	- Can I derive $F=t^2$ rather than only quote it?

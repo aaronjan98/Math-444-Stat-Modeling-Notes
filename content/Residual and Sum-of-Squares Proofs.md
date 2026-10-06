@@ -1,7 +1,7 @@
-# Exam 1 - Residual and Sum-of-Squares Proofs
+# Residual and Sum-of-Squares Proofs
 
-- Parent: [[Exam 1 Study Guide (Math 444)]]
-- Triage coverage
+- Parent: [[Exam 1]]
+- Problem types covered
 	- **Type 3:** residual-property proofs
 	- **Type 4:** prove the sum-of-squares decomposition
 
@@ -135,7 +135,7 @@
 		- the decomposition works cleanly **because least squares made the residuals orthogonal to the fitted values**
 
 1. **Worked verification using the class data**
-	- From [[Exam 1 - Fitting a Simple Linear Regression]], the fitted line is
+	- From [[Fitting a Simple Linear Regression]], the fitted line is
 		- $\displaystyle \hat y=1.7+0.7x$
 	- Data and residuals
 		- $x=-1$: $y=1$, $\hat y=1.0$, $\hat e=0$
@@ -160,17 +160,10 @@
 	- $R^2$ uses the fraction of $SST$ that became $SS_{reg}$.
 	- ANOVA puts $SS_{reg}$ and $RSS$ into separate rows and divides them by their degrees of freedom.
 	- The $F$ test compares explained variation per regression degree of freedom with unexplained variation per residual degree of freedom.
-	- So triage types 5 and 7 rest directly on the proof in this note.
+	- So problem types 5 and 7 rest directly on the proof in this note.
 
 1. **Common proof mistakes**
 	- Forgetting to state the residual definition before using it.
 	- Trying to prove the identities from generic averaging rather than the normal equations.
 	- In the SST proof, skipping the cross term instead of writing it and proving it is zero.
 	- Confusing $SS_{reg}$ with $RSS$ because of inconsistent SSR / SSE naming conventions.
-
-1. **Cold-recall checklist**
-	- Can I prove $\sum\hat e_i=0$ from the first normal equation in three lines?
-	- Can I prove $\sum x_i\hat e_i=0$ from the second normal equation?
-	- Can I use those two results to prove $\sum\hat y_i\hat e_i=0$?
-	- Can I split $y_i-\bar y$ through $\hat y_i$ without looking?
-	- Can I identify the exact cross term in the SST proof and explain why it vanishes?

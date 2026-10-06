@@ -1,9 +1,9 @@
-# Exam 1 - Regression Estimator Properties
+# Regression Estimator Properties
 
-- Parent: [[Exam 1 Study Guide (Math 444)]]
-- Triage coverage
+- Parent: [[Exam 1]]
+- Problem types covered
 	- **Type 8:** covariance / variance bilinearity proof
-	- This note also derives the estimator means and variances needed for triage type 6 inference.
+	- This note also derives the estimator means and variances needed for problem type 6 inference.
 
 1. **What problem are we trying to solve?**
 	- After fitting the line, $\hat\beta_0$ and $\hat\beta_1$ are numbers for the observed sample.
@@ -145,7 +145,7 @@
 	- Use $\operatorname{Var}(\hat\beta_1)=\sigma^2/S_{xx}$.
 		- $\displaystyle \boxed{\operatorname{Var}(\hat\beta_0)=\sigma^2\left(\frac1n+\frac{\bar x^2}{S_{xx}}\right)}.$
 
-1. **Triage proof — covariance of intercept and slope**
+1. **Problem proof — covariance of intercept and slope**
 	- **End goal**
 		- derive $\operatorname{Cov}(\hat\beta_0,\hat\beta_1)$ using bilinearity rather than memorizing it
 	- Start from
@@ -171,7 +171,7 @@
 	- Therefore
 		- $\displaystyle \hat\beta_1\sim N\left(\beta_1,\frac{\sigma^2}{S_{xx}}\right)$
 		- $\displaystyle \hat\beta_0\sim N\left(\beta_0,\sigma^2\left(\frac1n+\frac{\bar x^2}{S_{xx}}\right)\right)$
-	- These distributions are the bridge to the $t$ procedures in [[Exam 1 - Regression Inference and ANOVA]].
+	- These distributions are the bridge to the $t$ procedures in [[Regression Inference and ANOVA]].
 
 1. **What changes when $\sigma^2$ is unknown?**
 	- In real regression problems, $\sigma^2$ is unknown.
@@ -189,11 +189,3 @@
 	- Forgetting that $\bar x$ and the $c_i$ are fixed constants in the fixed-design regression model.
 	- Treating covariance bilinearity as if $\operatorname{Cov}(X,Y)=\operatorname{Var}(X)\operatorname{Var}(Y)$.
 	- Forgetting the minus sign in the intercept-slope covariance.
-
-1. **Cold-recall checklist**
-	- Can I rewrite $\hat\beta_1$ as $\sum c_iY_i$?
-	- Can I prove the three $c_i$ identities?
-	- Can I derive $E(\hat\beta_1)$ and $\operatorname{Var}(\hat\beta_1)$ from those identities?
-	- Can I prove $\operatorname{Cov}(\bar Y,\hat\beta_1)=0$?
-	- Can I derive $\operatorname{Cov}(\hat\beta_0,\hat\beta_1)$ step by step using bilinearity?
-	- Can I explain in words why a larger $S_{xx}$ improves slope precision?

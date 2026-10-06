@@ -1,7 +1,7 @@
-# Exam 1 - Reading R Regression Output
+# Reading R Regression Output
 
-- Parent: [[Exam 1 Study Guide (Math 444)]]
-- Triage coverage
+- Parent: [[Exam 1]]
+- Problem types covered
 	- **Type 11:** interpret R output
 
 1. **What problem are we trying to solve?**
@@ -17,7 +17,7 @@
 		- $\displaystyle Y_i=\beta_0+\beta_1x_i+\varepsilon_i.$
 	- Fitted mathematical line
 		- $\displaystyle \hat y=\hat\beta_0+\hat\beta_1x.$
-	- `summary(m)` is the main output to know for the triage problem.
+	- `summary(m)` is the main output to know for this exam problem.
 
 1. **The coefficient table**
 	- Typical columns
@@ -70,7 +70,7 @@
 1. **Adjusted $R$-squared**
 	- R also reports adjusted $R^2$.
 	- It penalizes model complexity by accounting for degrees of freedom.
-	- For Exam 1 SLR, know what line it is, but the ordinary $R^2$ is the direct quantity tied to the triage formula $SS_{reg}/SST$.
+	- For Exam 1 SLR, know what line it is, but the ordinary $R^2$ is the direct quantity tied to the formula $SS_{reg}/SST$.
 
 1. **The $F$-statistic line**
 	- R prints an $F$ statistic, numerator df, denominator df, and a $p$-value.
@@ -160,16 +160,80 @@
 	- **Step 7 — Read the overall $F$ line.**
 		- in SLR, connect it to the slope test
 
-1. **Representative numbers from the class hand-fit example**
-	- From the class data used throughout the notes
-		- $\hat\beta_0=1.7$
-		- $\hat\beta_1=0.7$
-		- $S=\sqrt{0.10}\approx0.3162$
-		- $SE(\hat\beta_1)=0.10$
-		- slope $t=7$
-		- $R^2\approx0.9423$
-		- $F=49$ on $1$ and $3$ df
-	- If R produced these values, the interpretation would be exactly the same as the by-hand calculations in [[Exam 1 - Regression Inference and ANOVA]].
+1. **Worked example: real R output on the class data**
+	- The data used throughout these notes is $(-1,1),(0,2),(1,2),(2,3),(3,4)$.
+	- Code
+		- ```r
+		  x <- c(-1, 0, 1, 2, 3)
+		  y <- c(1, 2, 2, 3, 4)
+		  m <- lm(y ~ x)
+		  summary(m)
+		  ```
+	- Output
+		- ```
+		  Call:
+		  lm(formula = y ~ x)
+
+		  Residuals:
+		           1          2          3          4          5
+		   9.714e-17  3.000e-01 -4.000e-01 -1.000e-01  2.000e-01
+
+		  Coefficients:
+		              Estimate Std. Error t value Pr(>|t|)
+		  (Intercept)   1.7000     0.1732   9.815  0.00225 **
+		  x             0.7000     0.1000   7.000  0.00599 **
+		  ---
+		  Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+		  Residual standard error: 0.3162 on 3 degrees of freedom
+		  Multiple R-squared:  0.9423,	Adjusted R-squared:  0.9231
+		  F-statistic:    49 on 1 and 3 DF,  p-value: 0.005986
+		  ```
+	- Line-by-line read, each number tied to a by-hand formula
+		- `(Intercept) Estimate 1.7000` is $\hat\beta_0=\bar y-\hat\beta_1\bar x$.
+		- `x Estimate 0.7000` is $\hat\beta_1=S_{xy}/S_{xx}=7/10$.
+		- `x Std. Error 0.1000` is $SE(\hat\beta_1)=S/\sqrt{S_{xx}}=0.3162/\sqrt{10}$.
+		- `x t value 7.000` is $\hat\beta_1/SE(\hat\beta_1)=0.7/0.1$, testing $H_0:\beta_1=0$.
+		- `x Pr(>|t|) 0.00599` is the two-sided $p$-value for that slope test.
+		- `Residual standard error: 0.3162 on 3 degrees of freedom` is $S=\sqrt{RSS/(n-2)}=\sqrt{0.30/3}$, with df $=n-2=3$.
+		- `Multiple R-squared: 0.9423` is $R^2=SS_{reg}/SST=4.90/5.20$.
+		- `F-statistic: 49 on 1 and 3 DF` is $F=MS_{reg}/MSE=4.90/0.10$; note $F=t^2=7^2$.
+	- The matching `anova(m)` table
+		- ```
+		  Analysis of Variance Table
+
+		  Response: y
+		            Df Sum Sq Mean Sq F value   Pr(>F)
+		  x          1    4.9     4.9      49 0.005986 **
+		  Residuals  3    0.3     0.1
+		  ```
+		- regression row: $SS_{reg}=4.9$, df $1$, $MS_{reg}=4.9$, $F=49$
+		- residual row: $RSS=0.3$, df $n-2=3$, $MSE=0.1$
+		- total is not printed; reconstruct it as $SST=4.9+0.3=5.2$ on $n-1=4$ df
+	- Coefficient confidence intervals from `confint(m)`
+		- ```
+		                  2.5 %   97.5 %
+		  (Intercept) 1.1487841 2.251216
+		  x           0.3817554 1.018245
+		  ```
+		- the slope row is $\hat\beta_1\pm t^*_{3}\,SE(\hat\beta_1)$; the interval excludes $0$, matching the significant slope test
+	- Leverages and intervals at $x_0=2$
+		- ```
+		  > hatvalues(m)
+			1   2   3   4   5
+		  0.6 0.3 0.2 0.3 0.6
+
+		  > predict(m, data.frame(x = 2), interval = "confidence")
+		    fit      lwr      upr
+		  1 3.1 2.548784 3.651216
+
+		  > predict(m, data.frame(x = 2), interval = "prediction")
+		    fit      lwr      upr
+		  1 3.1 1.952553 4.247447
+		  ```
+		- the hat values match $h_{ii}=1/n+(x_i-\bar x)^2/S_{xx}$ and sum to $2$
+		- at $x_0=2$ the prediction interval $[1.95,4.25]$ is wider than the mean-response CI $[2.55,3.65]$, because it adds the new observation's own error
+	- Every number here equals the by-hand result derived in [[Regression Inference and ANOVA]] and [[Regression Diagnostics and Leverage]].
 
 1. **Common mistakes**
 	- Treating the printed slope $p$-value as a test of an arbitrary null such as $\beta_1=1$.
@@ -177,11 +241,3 @@
 	- Saying $R^2$ is the percent of observations predicted correctly.
 	- Forgetting that `interval = "confidence"` is for the mean response while `interval = "prediction"` is for a new individual observation.
 	- Reading statistical significance without explaining the direction / magnitude of the estimated slope.
-
-1. **Cold-recall checklist**
-	- Can I write the fitted equation from the coefficient table immediately?
-	- Can I recompute a coefficient's $t$ statistic from Estimate and Std. Error?
-	- Can I state the null hypothesis attached to the printed slope $p$-value?
-	- Can I explain residual standard error, $R^2$, and the $F$ line in words?
-	- Can I explain why the slope $t$ test and model $F$ test agree in SLR?
-	- Can I distinguish the R commands for coefficient CI, mean-response CI, and prediction interval?

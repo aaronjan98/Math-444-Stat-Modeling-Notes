@@ -1,7 +1,7 @@
-# Exam 1 - Fitting a Simple Linear Regression
+# Fitting a Simple Linear Regression
 
-- Parent: [[Exam 1 Study Guide (Math 444)]]
-- Triage coverage
+- Parent: [[Exam 1]]
+- Problem types covered
 	- **Type 1:** hand-compute an SLR fit
 	- **Type 2:** derive the least-squares estimators / normal equations
 
@@ -153,11 +153,3 @@
 	- Treating $\beta_0,\beta_1$ and $\hat\beta_0,\hat\beta_1$ as the same objects.
 		- unhatted = population parameters
 		- hatted = estimates calculated from the sample
-
-1. **Cold-recall checklist**
-	- Can I state the end goal of least squares without a formula?
-	- Can I write SSE from memory?
-	- Can I take both partial derivatives and explain why they are set to zero?
-	- Can I derive the first normal equation and explain why it means the fitted line passes through $(\bar x,\bar y)$?
-	- Can I reduce the second normal equation to $S_{xy}-\beta_1S_{xx}=0$?
-	- Can I compute a complete fit from a small table without R?

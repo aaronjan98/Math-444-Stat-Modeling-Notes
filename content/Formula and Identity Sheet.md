@@ -1,32 +1,7 @@
-# Exam 1 Study Guide (Math 444)
+# Formula and Identity Sheet
 
-- Parent / exam map: [[Exam 1]]
-- This note is the **study map** for Exam 1.
-	- The detailed derivations, worked examples, proofs, and recognition strategies live in the six linked child notes below.
-	- Each child note is designed to be self-contained so it can be studied independently.
-
-1. **Study notes**
-	- [[Exam 1 - Fitting a Simple Linear Regression]]
-		- Triage 1: hand-compute an SLR fit
-		- Triage 2: derive the LSE / normal equations
-	- [[Exam 1 - Residual and Sum-of-Squares Proofs]]
-		- Triage 3: residual-property proofs
-		- Triage 4: prove $SST=SS_{reg}+RSS$
-	- [[Exam 1 - Regression Estimator Properties]]
-		- Triage 8: covariance / variance bilinearity proof
-		- also supplies the estimator means and variances needed for inference
-	- [[Exam 1 - Regression Inference and ANOVA]]
-		- Triage 5: $R^2$
-		- Triage 6: inference on slope / intercept
-		- Triage 7: ANOVA / $F$ test
-		- also includes mean-response confidence intervals and individual prediction intervals
-	- [[Exam 1 - Regression Diagnostics and Leverage]]
-		- Triage 9: residual diagnostics
-		- Triage 10: leverage
-		- also connects residual size, leverage, standardized residuals, and Cook's distance
-	- [[Exam 1 - Reading R Regression Output]]
-		- Triage 11: interpret `summary(lm())`
-		- also maps common R functions back to the by-hand quantities
+- Parent: [[Exam 1]]
+- A one-page reference for the notation, identities, and assumptions that connect every note. The derivations and worked examples live in the linked notes.
 
 1. **The whole course story in one chain**
 	- **Model**
@@ -80,6 +55,8 @@
 		- $\displaystyle t=\frac{\hat\beta_1-\beta_{1,0}}{S/\sqrt{S_{xx}}}$
 	- In SLR, the overall regression $F$ test for $H_0:\beta_1=0$ satisfies
 		- $\displaystyle F=t^2$
+	- Leverage of observation $i$
+		- $\displaystyle h_{ii}=\frac1n+\frac{(x_i-\bar x)^2}{S_{xx}}, \qquad \sum_i h_{ii}=2$
 
 1. **Model assumptions to remember**
 	- The mean response is linear in $x$.
@@ -88,21 +65,13 @@
 	- Errors have constant variance.
 		- $\displaystyle \operatorname{Var}(\varepsilon_i)=\sigma^2$
 	- Errors are independent.
-	- For the exact small-sample $t$ and $F$ inference used in class, errors are normally distributed.
+	- For the exact small-sample $t$ and $F$ inference, errors are normally distributed.
 		- $\displaystyle \varepsilon_i\sim N(0,\sigma^2)$
 
-1. **Highest-priority cold-recall targets**
-	- Derive $\hat\beta_1=S_{xy}/S_{xx}$ and $\hat\beta_0=\bar y-\hat\beta_1\bar x$ from SSE.
-	- Prove the three residual identities without looking.
-	- Prove $SST=SS_{reg}+RSS$ and explicitly identify why the cross term is zero.
-	- Derive $E(\hat\beta_1)$ and $\operatorname{Var}(\hat\beta_1)$ from the $c_i$ representation.
-	- Derive $\operatorname{Cov}(\hat\beta_0,\hat\beta_1)$ using bilinearity.
-	- Complete an ANOVA table from partial information.
-	- Explain why the prediction interval is wider than the confidence interval for the mean response.
-	- Derive the leverage formula from $\hat y_i=\sum_jh_{ij}y_j$ if derivations are in scope.
-	- Read every major line of `summary(lm())` and connect it to a by-hand formula.
-
-1. **Professor-specific emphasis / exclusions**
-	- Know how to fill in an ANOVA table.
-	- Do not spend exam-prep time focusing on Box-Cox transformations.
-	- No dummy-variable material or material that was not covered.
+1. **Notation warning on SSR / SSE**
+	- Textbooks and software disagree on the three-letter names.
+	- These notes use
+		- $SS_{reg}$ = explained / regression variation $=\sum(\hat y_i-\bar y)^2$
+		- $RSS$ = residual / unexplained variation $=\sum\hat e_i^2$
+	- Some sources write $SSR$ for the regression sum of squares and $SSE$ for the error sum of squares.
+	- Rely on the actual formula, not the abbreviation.

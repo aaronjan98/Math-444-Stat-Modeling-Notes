@@ -1,7 +1,7 @@
-# Exam 1 - Regression Diagnostics and Leverage
+# Regression Diagnostics and Leverage
 
-- Parent: [[Exam 1 Study Guide (Math 444)]]
-- Triage coverage
+- Parent: [[Exam 1]]
+- Problem types covered
 	- **Type 9:** residual diagnostics — read the plot
 	- **Type 10:** leverage
 
@@ -72,8 +72,6 @@
 		- roughly equal vertical spread everywhere
 	- Warning sign
 		- the cloud gets noticeably wider or narrower as fitted values increase
-	- Professor-specific exam guidance
-		- Box-Cox transformations are not a focus for this exam
 
 1. **What leverage measures**
 	- A residual asks whether the **response** is unusual at its predictor value.
@@ -118,9 +116,9 @@
 		- the average leverage is $2/n$
 		- the number $2$ corresponds to the two fitted coefficients: intercept and slope
 
-1. **High-leverage flag used in the practice notes**
-	- Practice rule
-		- $\displaystyle h_{ii}>\frac4n$
+1. **High-leverage flag (rule of thumb)**
+	- A common screening rule is to flag observation $i$ when its leverage exceeds twice the average $2/n$,
+		- $\displaystyle h_{ii}>\frac4n.$
 	- Treat this as a screening rule, not a theorem that the observation is bad.
 	- A high-leverage observation can be perfectly consistent with the fitted trend.
 
@@ -198,11 +196,3 @@
 	- Forgetting the $1/n$ term in the leverage formula.
 	- Treating the $4/n$ rule as an automatic deletion rule.
 	- Assuming a high $R^2$ makes diagnostic checks unnecessary.
-
-1. **Cold-recall checklist**
-	- Can I explain why residuals approximate errors when the model is correct?
-	- Can I explain why a missing quadratic term creates curvature in residuals?
-	- Can I derive $h_{ij}$ and $h_{ii}$ from the fitted-value formula?
-	- Can I prove $\sum h_{ii}=2$?
-	- Can I distinguish residual size, leverage, and influence in words?
-	- Can I identify which regression assumption a given diagnostic plot is checking?
