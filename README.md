@@ -2,8 +2,6 @@
 
 Quartz site for MATH 444 Statistical Modeling course notes.
 
-This site is based on the existing Real Analysis Quartz setup and retains its interactive Lorenz-flow background.
-
 ## Local development
 
 ```bash
