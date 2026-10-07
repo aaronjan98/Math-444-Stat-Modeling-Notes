@@ -2,19 +2,46 @@
 
 ## Concepts
 
-- R reports the same estimates, standard errors, tests, sums of squares, and diagnostics computed by hand — just in a compact format. End goal: look at `summary(lm())` (or `anova()`, `confint()`, `predict()`, `hatvalues()`...) and translate every number back into a mathematical statement about the regression model.
-- `m <- lm(y ~ x, data = dat)` fits $Y_i=\beta_0+\beta_1x_i+\varepsilon_i$ and gives the fitted line $\hat y=\hat\beta_0+\hat\beta_1x$. `summary(m)` is the main thing to know how to read.
-- **The coefficient table.** Columns `Estimate`, `Std. Error`, `t value`, `Pr(>|t|)`. Intercept row: `Estimate`$=\hat\beta_0$, `Std. Error`$=SE(\hat\beta_0)$, `t value`$=\hat\beta_0/SE(\hat\beta_0)$ (tests $H_0:\beta_0=0$), `Pr(>|t|)` is the two-sided $p$-value for that test. Predictor row: same pattern for $\hat\beta_1$, testing $H_0:\beta_1=0$ by default.
-	- If the question asks about $H_0:\beta_1=1$ (or any nonzero null) instead, do **not** use the printed `t value` directly — recompute $t=(\hat\beta_1-1)/SE(\hat\beta_1)$.
-- **Residual standard error line** (`Residual standard error: ... on ... degrees of freedom`): this is $S=\sqrt{MSE}=\sqrt{RSS/(n-2)}$; df should be $n-2$; it's the rough scale of a typical residual in the response's units.
-- **Multiple R-squared** is $R^2=1-RSS/SST=SS_{reg}/SST$, read as "$100R^2\%$ of the total sample variability in the response is explained by the fitted regression" — not a percent causal effect. Adjusted $R^2$ penalizes for model complexity; for SLR the ordinary $R^2$ is the one tied directly to $SS_{reg}/SST$.
-- **The $F$-statistic line** reports $F$, numerator/denominator df, and a $p$-value. In SLR: numerator df $=1$, denominator df $=n-2$, testing $H_0:\beta_1=0$, and $F=t^2$ (the slope's $t$ squared) — so the $F$-test $p$-value matches the two-sided slope-test $p$-value.
-- **Fast consistency checks:** predictor `t value` should equal `Estimate / Std. Error`; residual df should equal $n-2$; $F$ should equal the squared slope $t$; a large $R^2$ should correspond to a small $RSS$ relative to $SST$. Useful for catching transcription errors on an exam.
-- **`anova(m)`** exposes the sums-of-squares structure directly: regression row ($SS_{reg}$, df $1$, $MS_{reg}$, $F$), residual row ($RSS$, df $n-2$, $MSE$); total $SST$ may need reconstructing as $SS_{reg}+RSS$ if not printed.
-- **`confint(m)`** gives coefficient CIs, e.g. for the slope implementing $\hat\beta_1\pm t^*_{n-2}SE(\hat\beta_1)$.
-- **Mean response vs. prediction interval in R.** `predict(m, newdata, interval="confidence")` is for the mean response at a new $x$; `interval="prediction"` is for one new observation there. Both print `fit`, `lwr`, `upr`. The prediction interval is always wider — it adds the new observation's own random error on top of the uncertainty in the estimated mean line.
-- **Diagnostic quantities in R:** `resid(m)` (raw residuals), `fitted(m)` (fitted values), `hatvalues(m)` (leverages $h_{ii}$), `rstandard(m)` (standardized residuals), `cooks.distance(m)` (Cook's distances). `plot(m)` gives four panels by default: residuals vs. fitted, Q-Q, scale-location, and residuals vs. leverage.
-- **Answering an R-output question, step by step:**
+- R never uses different theory from the by-hand work — `summary(lm())` just reports the same estimates, standard errors, tests, and sums of squares computed earlier, in a compact printed format.
+	- `m <- lm(y ~ x, data = dat)` fits $Y_i=\beta_0+\beta_1x_i+\varepsilon_i$ and gives the fitted line $\hat y=\hat\beta_0+\hat\beta_1x$.
+	- The end goal of this whole note is to look at `summary(m)` (or `anova()`, `confint()`, `predict()`, `hatvalues()`...) and translate every printed number back into a mathematical statement about the regression model.
+- **The coefficient table is the first thing to read**, and its four columns answer four different questions about each coefficient.
+	- `Estimate` is the coefficient itself: $\hat\beta_0$ in the intercept row, $\hat\beta_1$ in the predictor row.
+	- `Std. Error` is that coefficient's standard error, $SE(\hat\beta_0)$ or $SE(\hat\beta_1)$ — how uncertain the estimate is.
+	- `t value` is the estimate divided by its standard error — by default this tests $H_0:\beta_0=0$ or $H_0:\beta_1=0$.
+	- `Pr(>|t|)` is the two-sided $p$-value for that same default test.
+	- If the question instead asks about a nonzero null like $H_0:\beta_1=1$, the printed `t value` is the wrong number to use — recompute it by hand as $t=(\hat\beta_1-1)/SE(\hat\beta_1)$.
+- **The residual standard error line** reports the overall scale of a typical miss.
+	- It reads `Residual standard error: ... on ... degrees of freedom`.
+	- The number itself is $S=\sqrt{MSE}=\sqrt{RSS/(n-2)}$, and the degrees of freedom should always be $n-2$.
+	- It's measured in the same units as the response, and gives a rough sense of how far off a typical prediction is.
+- **Multiple R-squared** is the same $R^2$ from the decomposition note, just printed under a different name.
+	- $R^2=1-RSS/SST=SS_{reg}/SST$.
+	- Read it as "$100R^2\%$ of the total sample variability in the response is explained by the fitted regression" — not as a percent causal effect.
+	- R also prints an adjusted $R^2$, which penalizes for model complexity; in simple linear regression the *ordinary* $R^2$ is still the one tied directly to the $SS_{reg}/SST$ formula.
+- **The $F$-statistic line** reports the overall model test, with the numerator/denominator degrees of freedom and a $p$-value attached.
+	- In simple linear regression: numerator df is always $1$, denominator df is always $n-2$, and the test is $H_0:\beta_1=0$.
+	- Since $F=t^2$ in SLR (shown in the Inference and ANOVA note), the $F$-test's $p$-value always matches the two-sided slope test's $p$-value.
+- A few fast consistency checks can catch a transcription mistake before it costs points on an exam.
+	- The predictor's `t value` should equal `Estimate / Std. Error`.
+	- The residual degrees of freedom should equal $n-2$.
+	- The $F$ statistic should equal the squared slope $t$-statistic.
+	- A large $R^2$ should correspond to a small $RSS$ relative to $SST$.
+- **`anova(m)`** prints the sum-of-squares table directly, instead of the coefficient-focused view from `summary()`.
+	- The regression row has $SS_{reg}$, df $1$, $MS_{reg}$, and $F$.
+	- The residual row has $RSS$, df $n-2$, and $MSE$.
+	- The total $SST$ usually isn't printed directly — reconstruct it as $SS_{reg}+RSS$ if needed.
+- **`confint(m)`** prints a confidence interval for each coefficient — for the slope, this is just $\hat\beta_1\pm t^*_{n-2}SE(\hat\beta_1)$ computed for you.
+- **`predict()` can give either of two different intervals**, depending on which question is being asked.
+	- `interval = "confidence"` gives a confidence interval for the *mean* response at a new $x$.
+	- `interval = "prediction"` gives a prediction interval for *one new individual observation* at that $x$.
+	- Both print `fit`, `lwr`, `upr` columns, but the prediction interval is always the wider one — it adds the new observation's own random error on top of the uncertainty in the estimated mean line.
+- **A handful of other functions pull out diagnostic quantities directly**, instead of reading them off a plot.
+	- `resid(m)` gives the raw residuals, and `fitted(m)` gives the fitted values.
+	- `hatvalues(m)` gives the leverages $h_{ii}$, and `rstandard(m)` gives the standardized residuals.
+	- `cooks.distance(m)` gives the Cook's distances.
+	- `plot(m)` on its own produces four diagnostic panels: residuals vs. fitted, Q-Q, scale-location, and residuals vs. leverage.
+- **A fixed order of steps for answering any R-output question:**
 	1. read the fitted equation off the coefficient estimates
 	2. interpret the slope in context
 	3. read the standard error for whichever coefficient is asked about

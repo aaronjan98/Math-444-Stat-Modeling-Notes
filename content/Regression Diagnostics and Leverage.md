@@ -1,20 +1,70 @@
 ## Concepts
 
-- Regression calculations always produce a fitted line, even when a straight-line model is wrong. Diagnostics ask whether the assumptions behind that line and its inference are believable, and whether individual observations have unusual predictor values or disproportionate influence. End goal: look at a plot or an observation and identify exactly what kind of problem it represents.
-- **Why residuals diagnose the unobserved errors.** True model $Y_i=\beta_0+\beta_1x_i+\varepsilon_i$; residual $\hat e_i=Y_i-\hat Y_i$. If the fitted line is close to the true mean line, $\hat Y_i\approx\beta_0+\beta_1x_i$, so $\hat e_i\approx\varepsilon_i$. We can't observe the true errors; residuals are our observable stand-ins for them.
-- A healthy residual plot: roughly random scatter around $0$, no systematic curvature, no trend with $x$ or fitted values, roughly constant vertical spread. A few moderate residuals are expected — the issue is systematic structure.
-- Residual-pattern recognition: curvature (U or inverted-U) suggests the mean function isn't linear; a funnel shape suggests nonconstant variance; an isolated large vertical residual suggests a response outlier; runs/clusters suggest dependence if observations are ordered; a Q-Q plot bending away from a line suggests non-normality.
-- **Why fitting a line to a quadratic relationship leaves a residual pattern.** If the truth is $Y_i=\beta_0+\beta_1x_i+\beta_2x_i^2+\varepsilon_i$ but we fit only $\hat Y_i\approx\beta_0+\beta_1x_i$, the residual is $\hat e_i\approx\beta_2x_i^2+\varepsilon_i$ — it still carries a systematic $x_i^2$ term, which is why curvature shows up. General principle: a pattern in the residuals means the model failed to explain a systematic part of the response.
-- **Normality diagnostic (Q-Q plot).** Plot the ordered standardized residuals against the expected order statistics from a standard normal. Close to a straight line is consistent with normality; systematic bending is evidence against it. How the order-statistic/quantile matching works: with $n$ points, the $k$-th smallest value lines up roughly against the $k/n$ quantile of the normal — e.g. with $n=200$, the 6th-smallest point sits near the $6/200=3$rd percentile. (E.g. $\mathrm{qnorm}(0.025)=-1.96$.) `plot(m)` in R produces four such diagnostic panels by default: residuals vs. fitted (model shape), Q-Q (normality), a scale-location plot (constant variance, using $\sqrt{|r_i|}$), and residuals vs. leverage.
-- **Constant-variance diagnostic.** Inspect residuals (or standardized residuals — preferred when high-leverage points exist, since raw residuals have nonconstant variance even when the errors don't) against fitted or predictor values. Warning sign: the cloud widens or narrows as fitted values increase. Fix: transform. A common rule of thumb is a square-root transform on *both* variables, $\sqrt y=\alpha+\beta\sqrt x$ (not just $y$) — e.g. the professor's crews-vs-rooms-cleaned example. Box–Cox is a more general transform but is out of scope here.
-- **What leverage measures.** A residual asks whether the *response* is unusual at its $x$; leverage asks whether the *predictor value itself* is unusual relative to the other $x$'s. In SLR, $\boxed{h_{ii}=\frac1n+\frac{(x_i-\bar x)^2}{S_{xx}}}$ — smallest near $\bar x$, grows as $x_i$ moves away, and depends only on the $x$'s, never on $y_i$.
-- **Derive the leverage / hat-matrix weights.** Start from $\hat y_i=\bar y+\hat\beta_1(x_i-\bar x)$. Write $\bar y=\sum_j\frac1ny_j$ and $\hat\beta_1=\frac1{S_{xx}}\sum_j(x_j-\bar x)y_j$. Substitute both and combine into one sum: $\hat y_i=\sum_j\left[\frac1n+\frac{(x_i-\bar x)(x_j-\bar x)}{S_{xx}}\right]y_j$. Define $\boxed{h_{ij}=\frac1n+\frac{(x_i-\bar x)(x_j-\bar x)}{S_{xx}}}$, so $\hat y_i=\sum_jh_{ij}y_j$ — every fitted value is a weighted sum of *all* observed responses — and the observation's own weight is $h_{ii}$ (set $j=i$).
-- **Why the leverages sum to 2 in SLR.** $\sum h_{ii}=\sum\frac1n+\frac1{S_{xx}}\sum(x_i-\bar x)^2=1+1=2$. So average leverage is $2/n$, and the $2$ corresponds to the two fitted coefficients (intercept and slope).
-- **High-leverage flag.** Rule of thumb: flag $i$ when $h_{ii}$ exceeds twice the average, $\boxed{h_{ii}>2\times\frac2n=\frac4n}$. This is a screening rule, not a theorem — a high-leverage point can lie exactly on the fitted trend.
-- **Why raw residuals have different variances.** $\operatorname{Var}(\hat e_i)=\sigma^2(1-h_{ii})$ — residuals at high-leverage points have artificially small variance (as $h_{ii}\to1$, $\operatorname{Var}(\hat e_i)\to0$), even under constant error variance. Standardized residual: $\boxed{r_i=\dfrac{\hat e_i}{S\sqrt{1-h_{ii}}}}$, where $S=\sqrt{RSS/(n-2)}$. $r_i$ is the residual in units of its own estimated standard deviation; flag $|r_i|>2$.
-- **Outlier vs. leverage vs. influence.** Large residual = unusual $y$ given its $x$. High leverage = unusual $x$. Influential = removing the point substantially changes the fit. A point can have high leverage and lie right on the trend (harmless); a point can have a large residual at an ordinary $x$; a point with both is especially capable of being influential.
-- **Cook's distance.** Combines outlyingness and leverage into one influence number: leave-one-out form $D_i=\dfrac{\sum_j(\hat y_{j(i)}-\hat y_j)^2}{2S^2}$ (remove observation $i$, refit, measure how far *all* the fitted values moved), equal to the computational shortcut $\boxed{D_i=\dfrac{r_i^2}{2}\cdot\dfrac{h_{ii}}{1-h_{ii}}}$ — large from a big $r_i$, a big $h_{ii}$, or both. Flag $D_i>\dfrac{4}{n-2}$. Using Cook's distance to judge influence relies on the errors being normal, since that's what makes the standardized residual inside it meaningful.
-- Exam recognition map: curved residual plot → wrong functional form; fan/funnel → nonconstant variance; Q-Q with systematic bends → possible nonnormality; one point far vertically → response outlier; one point far horizontally → high leverage; both at once → potentially influential, check Cook's distance.
+- Regression calculations will always hand you a fitted line, even when a straight-line model is secretly the wrong choice for the data.
+	- Diagnostics are the follow-up check: do the assumptions behind that line and its inference actually hold, and does any individual observation have unusual influence on the result?
+	- The end goal is to be able to look at a plot, or a single observation, and name exactly what kind of problem it represents.
+- **Residuals are the main diagnostic tool because they stand in for the errors we can never actually observe.**
+	- The true model is $Y_i=\beta_0+\beta_1x_i+\varepsilon_i$, where $\varepsilon_i$ is the true, unobservable random error.
+	- The residual is $\hat e_i=Y_i-\hat Y_i$ — the gap between the data and our *fitted* line, which we can compute.
+	- If the fitted line is close to the true mean line, then $\hat Y_i\approx\beta_0+\beta_1x_i$, which makes $\hat e_i\approx\varepsilon_i$.
+	- So as long as the model is reasonable, the residuals are a usable, observable stand-in for the errors we can't see.
+- A healthy residual plot has a specific, recognizable look.
+	- Roughly random scatter centered around $0$, with no systematic curvature and no trend against $x$ or the fitted values.
+	- Roughly constant vertical spread across the whole plot.
+	- A few individually large residuals are normal — the problem sign is a *systematic* pattern, not occasional size.
+- Each kind of departure from that healthy look points to a specific underlying problem.
+	- Curvature (a U or inverted-U shape) suggests the true mean function isn't actually linear.
+	- A funnel shape (spread that grows or shrinks) suggests the error variance isn't constant.
+	- One isolated, large vertical residual suggests a response outlier.
+	- Runs or clusters suggest the errors are correlated, if the observations have a natural order.
+	- A Q-Q plot that bends away from a straight line suggests the errors aren't normally distributed.
+- **A concrete example of the first problem: fitting a line to data that's actually quadratic leaves a visible pattern in the residuals.**
+	- Suppose the truth is $Y_i=\beta_0+\beta_1x_i+\beta_2x_i^2+\varepsilon_i$, but we only fit $\hat Y_i\approx\beta_0+\beta_1x_i$ (missing the $x^2$ term).
+	- The residual then works out to $\hat e_i\approx\beta_2x_i^2+\varepsilon_i$ — it still carries a systematic $x_i^2$ term that the line never captured.
+	- That leftover $x_i^2$ term is exactly why curvature shows up in the residual plot: a pattern in the residuals means the model failed to explain a systematic part of the response, not just random noise.
+- **The Q-Q plot checks the normality assumption** by comparing the residuals' shape to what a normal distribution's shape should look like.
+	- Plot the ordered standardized residuals against the order statistics you'd expect from a standard normal distribution.
+	- Points sitting close to a straight line are consistent with normality; systematic bending away from the line is evidence against it.
+	- The matching works like this: with $n$ points total, the $k$-th smallest residual is compared against roughly the $k/n$ quantile of the normal distribution — e.g. with $n=200$ points, the 6th-smallest one is compared against the $6/200=3$rd percentile.
+	- R's `plot(m)` produces four such diagnostic panels automatically: residuals vs. fitted (checks model shape), Q-Q (checks normality), a scale-location plot (checks constant variance, using $\sqrt{|r_i|}$), and residuals vs. leverage.
+- **The constant-variance diagnostic checks whether the error variance actually stays the same across the data**, which is one of the model's core assumptions.
+	- Plot residuals (or, better, standardized residuals — explained below) against fitted or predictor values.
+	- The warning sign is a cloud that visibly widens or narrows as the fitted values increase.
+	- When that happens, the standard fix is a transformation — a common rule of thumb is to take the square root of *both* variables, $\sqrt y=\alpha+\beta\sqrt x$, not just $y$ alone.
+	- A more general transform, Box–Cox, exists for this same problem but is out of scope here.
+- **Leverage asks a different question from a residual: is this observation's $x$-value itself unusual**, regardless of what its $y$-value turned out to be.
+	- A residual is about the *response* — is $y_i$ unusual given its $x_i$?
+	- Leverage is about the *predictor* — is $x_i$ itself far from the rest of the $x$'s?
+	- In simple linear regression, leverage has a closed form: $\boxed{h_{ii}=\frac1n+\frac{(x_i-\bar x)^2}{S_{xx}}}$.
+	- Reading the formula: $h_{ii}$ is smallest when $x_i=\bar x$ and grows as $x_i$ moves away from the center, and it depends *only* on the $x$'s — the $y$-values never enter into it.
+- **Where that leverage formula actually comes from** — every fitted value turns out to be a weighted sum of *every* observed response, and $h_{ii}$ is just one observation's own weight in that sum.
+	- Start from the fitted value written around the sample mean: $\hat y_i=\bar y+\hat\beta_1(x_i-\bar x)$.
+	- Write both pieces as sums over all observations $j$: $\bar y=\sum_j\frac1ny_j$ and $\hat\beta_1=\frac1{S_{xx}}\sum_j(x_j-\bar x)y_j$.
+	- Substitute both in and combine into one sum: $\hat y_i=\sum_j\left[\frac1n+\frac{(x_i-\bar x)(x_j-\bar x)}{S_{xx}}\right]y_j$.
+	- Define that bracketed quantity as $\boxed{h_{ij}=\frac1n+\frac{(x_i-\bar x)(x_j-\bar x)}{S_{xx}}}$, so $\hat y_i=\sum_jh_{ij}y_j$.
+	- Setting $j=i$ gives the observation's own weight in determining its own fitted value, $h_{ii}$ — which is why a point with large $h_{ii}$ can pull the fitted line toward itself.
+- The leverages across all $n$ observations always add up to exactly $2$ in simple linear regression.
+	- $\sum h_{ii}=\sum\frac1n+\frac1{S_{xx}}\sum(x_i-\bar x)^2=1+1=2$.
+	- So the average leverage is $2/n$, and the $2$ corresponds to the two parameters being fit (intercept and slope).
+- **The high-leverage flag** is a rule of thumb for deciding when a point's leverage counts as "unusually large."
+	- Flag observation $i$ when its leverage exceeds twice the average: $\boxed{h_{ii}>2\times\frac2n=\frac4n}$.
+	- This is a screening rule, not a theorem — a flagged, high-leverage point can still lie exactly on the fitted trend and cause no real problem.
+- **Raw residuals don't all have the same variance, which is why they need to be standardized before comparing their sizes.**
+	- The exact variance of a residual is $\operatorname{Var}(\hat e_i)=\sigma^2(1-h_{ii})$.
+	- As $h_{ii}\to1$ (very high leverage), $\operatorname{Var}(\hat e_i)\to0$ — a high-leverage point's residual is artificially squeezed toward zero, even if the true errors all have the same constant variance.
+	- Dividing out that effect gives the standardized residual: $\boxed{r_i=\dfrac{\hat e_i}{S\sqrt{1-h_{ii}}}}$, where $S=\sqrt{RSS/(n-2)}$.
+	- $r_i$ is the residual measured in units of its own estimated standard deviation, which makes residuals at different leverage points directly comparable; flag $|r_i|>2$.
+- Three related but distinct ideas are easy to mix up: outlier, leverage, and influence.
+	- A large residual means an unusual $y$-value, given its $x$.
+	- High leverage means an unusual $x$-value, regardless of $y$.
+	- An influential point is one whose removal would substantially change the fit.
+	- A point can have high leverage and still sit right on the trend line (harmless); a point can have a large residual at an entirely ordinary $x$; a point with both traits at once is the one most capable of being seriously influential.
+- **Cook's distance combines outlyingness and leverage into one number**, specifically to catch the dangerous combination of the two.
+	- Conceptually, it's defined by leaving one observation out, refitting the whole model without it, and measuring how far *all* the fitted values moved as a result: $D_i=\dfrac{\sum_j(\hat y_{j(i)}-\hat y_j)^2}{2S^2}$.
+	- That's expensive to compute directly, but it equals a simple shortcut: $\boxed{D_i=\dfrac{r_i^2}{2}\cdot\dfrac{h_{ii}}{1-h_{ii}}}$.
+	- Reading the shortcut: $D_i$ gets large from a big standardized residual $r_i$, a big leverage $h_{ii}$, or both together.
+	- Flag $D_i>\dfrac{4}{n-2}$.
+	- Using Cook's distance this way relies on the errors being normal, since that's what makes the standardized residual inside it a meaningful quantity in the first place.
 
 ## Practice Problems
 

@@ -1,16 +1,55 @@
 ## Concepts
 
-- The fitted coefficients describe the sample, but inference makes statements about the population regression relationship. That needs an estimate of the error variance, standard errors for the estimators, a reference distribution, and a way to measure how much variation the regression explains — the goal is to move fluently among coefficient inference, $R^2$, and ANOVA instead of treating them as unrelated topics.
-- **Estimate the error variance.** $RSS=\sum\hat e_i^2$; fitting two parameters costs two degrees of freedom, so $\boxed{S^2=MSE=\dfrac{RSS}{n-2}}$ and residual standard error $\boxed{S=\sqrt{MSE}}$.
-- **Inference for the slope.** $SE(\hat\beta_1)=\dfrac{S}{\sqrt{S_{xx}}}$ (from [[Regression Estimator Properties]]). For $H_0:\beta_1=\beta_{1,0}$ vs. $H_a:\beta_1\neq\beta_{1,0}$, test statistic $\boxed{t=\dfrac{\hat\beta_1-\beta_{1,0}}{S/\sqrt{S_{xx}}}}$ on $t_{n-2}$. Common nulls: $\beta_1=0$ (any linear relationship at all?) and $\beta_1=1$ (same mechanics, just a different numerator). Reject for large $|t|$, equivalently for a small two-sided $p$-value.
-- **Confidence interval for the slope.** $\hat\beta_1\pm t^*_{n-2}\,S/\sqrt{S_{xx}}$. Test–CI connection: a two-sided level-$\alpha$ test rejects $H_0:\beta_1=\beta_{1,0}$ exactly when $\beta_{1,0}$ falls outside the $(1-\alpha)100\%$ CI.
-- **Inference for the intercept.** $SE(\hat\beta_0)=S\sqrt{\frac1n+\frac{\bar x^2}{S_{xx}}}$; same $t$ and CI machinery. Interpretation warning: the intercept is the expected response at $x=0$, which may be scientifically meaningless if $x=0$ is far outside the observed range.
-- **Confidence interval for a mean response at $x_0$.** $\hat y_0=\hat\beta_0+\hat\beta_1x_0$; $SE_{mean}=S\sqrt{\frac1n+\frac{(x_0-\bar x)^2}{S_{xx}}}$; interval $\hat y_0\pm t^*_{n-2}SE_{mean}$. Narrowest near $\bar x$, since $(x_0-\bar x)^2$ is smallest there — the line is best pinned down at the center of the data.
-- **Prediction interval for one new observation at $x_0$.** A new response carries two sources of uncertainty: the mean line's uncertainty *and* its own random error. $SE_{pred}=S\sqrt{1+\frac1n+\frac{(x_0-\bar x)^2}{S_{xx}}}$; interval $\hat y_0\pm t^*_{n-2}SE_{pred}$. The extra $1$ under the root is the new observation's irreducible error, so a prediction interval is always wider than the CI for the mean response at the same $x_0$.
-- **$R^2$ from the decomposition.** $SST=SS_{reg}+RSS$ gives $\boxed{R^2=\dfrac{SS_{reg}}{SST}=1-\dfrac{RSS}{SST}}$, read as "$R^2\times100\%$ of the total sample variability in $Y$ is explained by the fitted regression on $x$." In SLR with an intercept, $R^2=r_{xy}^2$. What it does *not* tell you: it doesn't prove causation, and it doesn't verify linearity, normality, independence, or constant variance — a high $R^2$ can coexist with a badly misspecified model.
-- **ANOVA table structure.** Regression row: SS $=SS_{reg}$, df $=1$, MS $=SS_{reg}$; residual row: SS $=RSS$, df $=n-2$, MS $=RSS/(n-2)$; total row: SS $=SST$, df $=n-1$. $\boxed{F=MS_{reg}/MSE}$.
-- **Reconstructing a partially blank ANOVA table.** Get $n$ from the degrees of freedom (total df $=n-1$, residual df $=n-2$); use $SST=SS_{reg}+RSS$; use $MS_{reg}=SS_{reg}/1$ and $MSE=RSS/(n-2)$; use $F=MS_{reg}/MSE$; if $R^2$ is given, use $R^2=SS_{reg}/SST$ or $1-RSS/SST$.
-- **Why the $F$-test and the slope $t$-test are the same test in SLR.** Since $\hat\beta_0=\bar y-\hat\beta_1\bar x$, $\hat y_i-\bar y=\hat\beta_1(x_i-\bar x)$, so $SS_{reg}=\sum(\hat y_i-\bar y)^2=\hat\beta_1^2S_{xx}$, and since regression df is $1$, $MS_{reg}=\hat\beta_1^2S_{xx}$. Then $F=\hat\beta_1^2S_{xx}/MSE=\hat\beta_1^2S_{xx}/S^2=\left(\hat\beta_1/(S/\sqrt{S_{xx}})\right)^2$ — the squared slope $t$-statistic under $H_0:\beta_1=0$. So $\boxed{F=t^2}$: in SLR the overall model test and the two-sided slope test carry the same information.
+- The fitted coefficients $\hat\beta_0,\hat\beta_1$ describe the sample at hand, but inference means making a statement about the true, unknown *population* relationship.
+	- To do that, we need an estimate of the error variance, standard errors for the estimators, a reference distribution, and a way to measure how much variation the regression actually explains.
+	- The goal of this whole note is to move fluently among coefficient inference, $R^2$, and ANOVA — they all come from the same handful of ingredients below, not three unrelated topics.
+- **The first ingredient is an estimate of the error variance** $\sigma^2$, since every standard error below needs it and $\sigma^2$ itself is never known.
+	- Recall $RSS=\sum\hat e_i^2$ is the sum of squared residuals.
+	- Fitting two parameters ($\hat\beta_0$ and $\hat\beta_1$) costs two degrees of freedom out of $n$, so the unbiased estimate divides by $n-2$ instead of $n$: $\boxed{S^2=MSE=\dfrac{RSS}{n-2}}$.
+	- The residual standard error is just the square root: $\boxed{S=\sqrt{MSE}}$.
+- **Inference for the slope** asks whether the true $\beta_1$ could plausibly equal some specific value.
+	- Its standard error, from [[Regression Estimator Properties]], is $SE(\hat\beta_1)=\dfrac{S}{\sqrt{S_{xx}}}$.
+	- To test $H_0:\beta_1=\beta_{1,0}$ against $H_a:\beta_1\neq\beta_{1,0}$, the test statistic is $\boxed{t=\dfrac{\hat\beta_1-\beta_{1,0}}{S/\sqrt{S_{xx}}}}$, compared against a $t_{n-2}$ distribution.
+	- The most common null is $\beta_1=0$ (is there any linear relationship at all?), but $\beta_1=1$ shows up too (e.g. testing whether two measurements are on a 1-to-1 scale) — same formula, just a different number subtracted in the numerator.
+	- Reject $H_0$ for a large $|t|$, which is the same thing as a small two-sided $p$-value.
+- **A confidence interval for the slope** is built from the same standard error.
+	- The interval is $\hat\beta_1\pm t^*_{n-2}\,S/\sqrt{S_{xx}}$, where $t^*_{n-2}$ is the critical value for the chosen confidence level.
+	- Test–CI connection: a two-sided level-$\alpha$ test rejects $H_0:\beta_1=\beta_{1,0}$ exactly when $\beta_{1,0}$ falls outside this interval — so you can read off a test's conclusion directly from the CI.
+- **Inference for the intercept** works the same way, with its own standard error from the same earlier note: $SE(\hat\beta_0)=S\sqrt{\frac1n+\frac{\bar x^2}{S_{xx}}}$.
+	- The $t$-test and CI machinery is identical to the slope's, just with this standard error substituted in.
+	- Interpretation warning: the intercept is the expected response at $x=0$, which can be scientifically meaningless if $x=0$ sits far outside the range of data you actually observed.
+- **A confidence interval for the mean response at some new $x_0$** answers "where does the true regression line sit at $x_0$?"
+	- The fitted mean response there is $\hat y_0=\hat\beta_0+\hat\beta_1x_0$.
+	- Its standard error is $SE_{mean}=S\sqrt{\frac1n+\frac{(x_0-\bar x)^2}{S_{xx}}}$, and the interval is $\hat y_0\pm t^*_{n-2}SE_{mean}$.
+	- This interval is narrowest when $x_0=\bar x$, since $(x_0-\bar x)^2$ is smallest there — the fitted line is best pinned down near the center of the data, and gets less certain the further you move from it.
+- **A prediction interval for one new observation at $x_0$** answers a different question: "where will one actual new data point land?"
+	- A single new response carries two separate sources of uncertainty: the uncertainty in where the mean line itself sits, *and* that one observation's own random error around the line.
+	- Its standard error adds an extra $1$ to account for that second source: $SE_{pred}=S\sqrt{1+\frac1n+\frac{(x_0-\bar x)^2}{S_{xx}}}$, giving the interval $\hat y_0\pm t^*_{n-2}SE_{pred}$.
+	- Because of that extra $1$ under the root, a prediction interval is always wider than the confidence interval for the mean response at the same $x_0$.
+- **$R^2$ falls directly out of the sum-of-squares decomposition** covered in the earlier proofs note.
+	- Recall $SST=SS_{reg}+RSS$.
+	- Dividing through by $SST$ gives $\boxed{R^2=\dfrac{SS_{reg}}{SST}=1-\dfrac{RSS}{SST}}$.
+	- Read it as "$R^2\times100\%$ of the total sample variability in $Y$ is explained by the fitted regression on $x$."
+	- In simple linear regression with an intercept, $R^2$ is also exactly the squared correlation coefficient: $R^2=r_{xy}^2$.
+	- What $R^2$ does *not* tell you: it doesn't prove causation, and it doesn't verify linearity, normality, independence, or constant variance — a high $R^2$ can still coexist with a badly misspecified model.
+- **The ANOVA table** is just the same three sum-of-squares quantities organized into rows, with degrees of freedom and averages attached.
+	- The regression row has SS $=SS_{reg}$, df $=1$ (one predictor), and MS $=SS_{reg}/1=SS_{reg}$.
+	- The residual row has SS $=RSS$, df $=n-2$, and MS $=RSS/(n-2)=MSE$.
+	- The total row has SS $=SST$, df $=n-1$.
+	- The $F$ statistic compares the two mean squares: $\boxed{F=MS_{reg}/MSE}$.
+- **Reconstructing a partially blank ANOVA table** is mostly a matter of knowing which quantities determine which others.
+	- The degrees of freedom tell you $n$: total df is $n-1$, residual df is $n-2$.
+	- $SST=SS_{reg}+RSS$ lets you fill in whichever SS is missing once the other two are known.
+	- $MS_{reg}=SS_{reg}/1$ and $MSE=RSS/(n-2)$ convert sums of squares into mean squares.
+	- $F=MS_{reg}/MSE$ connects the two mean squares.
+	- If $R^2$ is given instead of an SS value, use $R^2=SS_{reg}/SST$ or $1-RSS/SST$ to back it out.
+- **In simple linear regression, the overall $F$-test and the slope's two-sided $t$-test are secretly the same test** — this is worth deriving once so it's not just a memorized fact.
+	- Since $\hat\beta_0=\bar y-\hat\beta_1\bar x$, the fitted deviation from the mean simplifies to $\hat y_i-\bar y=\hat\beta_1(x_i-\bar x)$.
+	- Squaring and summing that gives $SS_{reg}=\sum(\hat y_i-\bar y)^2=\hat\beta_1^2S_{xx}$.
+	- Since the regression row has only $1$ degree of freedom, $MS_{reg}=SS_{reg}/1=\hat\beta_1^2S_{xx}$.
+	- Dividing by $MSE=S^2$: $F=\hat\beta_1^2S_{xx}/S^2=\left(\hat\beta_1/(S/\sqrt{S_{xx}})\right)^2$.
+	- The expression in parentheses is exactly the slope's $t$-statistic under $H_0:\beta_1=0$, so $\boxed{F=t^2}$.
+	- In other words: with only one predictor, "does the model explain anything" (the $F$-test) and "is the slope nonzero" (the $t$-test) are the same question asked two different ways.
 
 ## Practice Problems
 

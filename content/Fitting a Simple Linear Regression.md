@@ -1,25 +1,56 @@
 ## Concepts
 
-- We observe pairs $(x_i,y_i)$ and want one straight line that summarizes how $Y$ changes with $x$. Population model: $Y_i=\beta_0+\beta_1x_i+\varepsilon_i$. From the sample we estimate $\beta_0,\beta_1$ with $\hat\beta_0,\hat\beta_1$ and build $\hat y=\hat\beta_0+\hat\beta_1x$.
-	- **End goal of least squares:** choose the intercept and slope so the fitted line has the smallest possible total squared vertical error from the observed points.
-- Why residuals are the starting point
-	- For observation $i$, a candidate line predicts $\hat y_i=\beta_0+\beta_1x_i$, with vertical miss (residual) $e_i=y_i-\beta_0-\beta_1x_i$.
-	- Adding raw residuals is a bad measure of total error because positive and negative misses cancel; squaring fixes that.
-	- $\displaystyle SSE(\beta_0,\beta_1)=\sum_{i=1}^n(y_i-\beta_0-\beta_1x_i)^2.$ Everything below is machinery for making this as small as possible.
-- Summation facts needed for the derivation: $\sum x_i=n\bar x$, $\sum y_i=n\bar y$, $\sum(x_i-\bar x)=0$, $S_{xx}=\sum(x_i-\bar x)^2=\sum x_i^2-n\bar x^2$, $S_{xy}=\sum(x_i-\bar x)(y_i-\bar y)=\sum x_iy_i-n\bar x\bar y$.
-	- $S_{xx}$ and $S_{xy}$ are really just the sample variance and covariance before dividing by $n-1$ — that's why $\hat\beta_1=S_{xy}/S_{xx}$ later reads as "covariance over variance," the same ratio as $\operatorname{cov}(x,y)/\operatorname{var}(x)$, since the $(n-1)$ cancels.
-	- Pitfall: $\sum a_ib_i\neq(\sum a_i)(\sum b_i)$, and $\sum a_i^2\neq(\sum a_i)^2$.
-- **Derive the estimators**
-	- Step 1 — differentiate SSE with respect to $\beta_0$: $\frac{\partial SSE}{\partial\beta_0}=-2\sum(y_i-\beta_0-\beta_1x_i)$. Set to $0$: $\sum y_i=n\beta_0+\beta_1\sum x_i$. Divide by $n$ and use the mean identities: $\bar y=\beta_0+\beta_1\bar x$, so $\boxed{\beta_0=\bar y-\beta_1\bar x}$ — this is the first normal equation, and it says the fitted line must pass through $(\bar x,\bar y)$.
-	- Step 2 — differentiate SSE with respect to $\beta_1$: $\frac{\partial SSE}{\partial\beta_1}=-2\sum x_i(y_i-\beta_0-\beta_1x_i)$. Set to $0$: $\sum x_iy_i-\beta_0\sum x_i-\beta_1\sum x_i^2=0$ — the second normal equation.
-	- Step 3 — substitute $\beta_0=\bar y-\beta_1\bar x$ and $\sum x_i=n\bar x$ into step 2, expand, and group the non-$\beta_1$ and $\beta_1$ parts: $(\sum x_iy_i-n\bar x\bar y)-\beta_1(\sum x_i^2-n\bar x^2)=0$, i.e. $S_{xy}-\beta_1S_{xx}=0$, so $\boxed{\hat\beta_1=\dfrac{S_{xy}}{S_{xx}}}$.
-	- Step 4 — recover the intercept: $\boxed{\hat\beta_0=\bar y-\hat\beta_1\bar x}$.
-	- Step 5 — the fitted line: $\boxed{\hat y=\hat\beta_0+\hat\beta_1x}$.
-	- Why this is a minimum: SSE is quadratic in $(\beta_0,\beta_1)$; as long as the $x_i$ are not all identical, $S_{xx}>0$, so the objective curves upward and the stationary point is the minimum.
-- The two normal equations, remembered directly: $\sum\hat e_i=0$ and $\sum x_i\hat e_i=0$ — the least-squares residual vector is orthogonal to the constant column and to $x$.
-	- "Orthogonal to the constant and to $x$" just means the leftover residual has nothing left to explain: no overall bias (the constant direction), no leftover linear relationship with $x$ (the $x$ direction).
-- Why centering keeps appearing: $S_{xx}$ is the spread of $x$ around $\bar x$; $S_{xy}$ is how $x$ and $y$ co-move around their means; $\hat\beta_1=S_{xy}/S_{xx}$ reads as "how much $y$ moves with $x$, relative to how much $x$ itself varies."
-- Exam workflow for a hand-computed fit: get $n,\sum x_i,\sum y_i,\sum x_i^2,\sum x_iy_i$ → $\bar x,\bar y$ → $S_{xx},S_{xy}$ → $\hat\beta_1=S_{xy}/S_{xx}$ → $\hat\beta_0=\bar y-\hat\beta_1\bar x$ → fitted line → (if asked) residual $\hat e_i=y_i-\hat y_i$.
+- We have observed pairs $(x_i,y_i)$ and want one straight line that summarizes how $Y$ changes with $x$.
+	- The population model assumes a true but unknown line plus random noise: $Y_i=\beta_0+\beta_1x_i+\varepsilon_i$.
+	- $\beta_0,\beta_1$ are the true population intercept and slope — we never observe them directly.
+	- From the sample, we estimate them with $\hat\beta_0,\hat\beta_1$ (the hat just means "estimated from data").
+	- The fitted line, our best guess at the true line, is $\hat y=\hat\beta_0+\hat\beta_1x$.
+	- **End goal of least squares:** choose $\hat\beta_0,\hat\beta_1$ so the fitted line has the smallest possible total squared vertical error from the observed points.
+- The starting point is the residual — the vertical miss between a candidate line and the data.
+	- For observation $i$, a candidate line predicts $\hat y_i=\beta_0+\beta_1x_i$.
+	- The residual is the gap between what actually happened and what the line predicted: $e_i=y_i-\beta_0-\beta_1x_i$.
+	- Adding up the raw residuals is a bad way to measure total error, because a positive miss and a negative miss of the same size would cancel out and hide the fact that the line is bad.
+	- Squaring each residual before adding fixes that, since squares are always positive.
+	- This gives the sum of squared errors: $\displaystyle SSE(\beta_0,\beta_1)=\sum_{i=1}^n(y_i-\beta_0-\beta_1x_i)^2.$
+	- Everything that follows is machinery for making $SSE$ as small as possible.
+- A few summation facts are needed before the derivation, all of which follow from the definition of a mean.
+	- $\sum x_i=n\bar x$ and $\sum y_i=n\bar y$ — a sum is just the mean multiplied by how many terms there are.
+	- $\sum(x_i-\bar x)=0$ — deviations from the mean always cancel out exactly, by definition of the mean.
+	- $S_{xx}=\sum(x_i-\bar x)^2=\sum x_i^2-n\bar x^2$ — this is the sum of squared deviations of $x$ from its own mean, written two equivalent ways (the second is a shortcut for hand computation).
+	- $S_{xy}=\sum(x_i-\bar x)(y_i-\bar y)=\sum x_iy_i-n\bar x\bar y$ — the same idea, but for how $x$ and $y$ deviate together.
+	- $S_{xx}$ and $S_{xy}$ are really just the sample variance and covariance before dividing by $n-1$. That's why $\hat\beta_1=S_{xy}/S_{xx}$ later reads as "covariance over variance" — the same ratio as $\operatorname{cov}(x,y)/\operatorname{var}(x)$, since the $(n-1)$ in each cancels.
+	- Pitfall: $\sum a_ib_i\neq(\sum a_i)(\sum b_i)$, and $\sum a_i^2\neq(\sum a_i)^2$ — you cannot pull a sum apart like that.
+- **Derive the estimators** by minimizing $SSE$ with calculus: take a partial derivative with respect to each unknown, and set each one to zero.
+	- Step 1 finds the condition on $\beta_0$.
+		- Differentiate: $\frac{\partial SSE}{\partial\beta_0}=-2\sum(y_i-\beta_0-\beta_1x_i)$.
+		- Set the derivative to $0$, since that's what makes a point a minimum: $\sum(y_i-\beta_0-\beta_1x_i)=0$.
+		- Expand and rearrange: $\sum y_i=n\beta_0+\beta_1\sum x_i$ — this is called the **first normal equation**.
+		- Divide every term by $n$ and use the mean identities from above: $\bar y=\beta_0+\beta_1\bar x$, so $\boxed{\beta_0=\bar y-\beta_1\bar x}$.
+		- This equation says the fitted line is forced to pass through the point $(\bar x,\bar y)$, no matter what the slope turns out to be.
+	- Step 2 finds the second condition, this time on $\beta_1$.
+		- Differentiate with respect to $\beta_1$ instead: $\frac{\partial SSE}{\partial\beta_1}=-2\sum x_i(y_i-\beta_0-\beta_1x_i)$.
+		- Set it to $0$ and rearrange: $\sum x_iy_i=\beta_0\sum x_i+\beta_1\sum x_i^2$ — the **second normal equation**.
+	- Step 3 solves the two normal equations together by substitution.
+		- Plug $\beta_0=\bar y-\beta_1\bar x$ (from Step 1) and $\sum x_i=n\bar x$ into the second normal equation.
+		- Expanding and collecting the $\beta_1$ terms on one side gives $(\sum x_iy_i-n\bar x\bar y)-\beta_1(\sum x_i^2-n\bar x^2)=0$.
+		- The two parentheses are exactly $S_{xy}$ and $S_{xx}$ from the summation facts above, so this reads $S_{xy}-\beta_1S_{xx}=0$.
+		- Solving for $\beta_1$ gives $\boxed{\hat\beta_1=\dfrac{S_{xy}}{S_{xx}}}$.
+	- Step 4 plugs the slope back into Step 1's equation to recover the intercept: $\boxed{\hat\beta_0=\bar y-\hat\beta_1\bar x}$.
+	- Step 5 assembles the fitted line: $\boxed{\hat y=\hat\beta_0+\hat\beta_1x}$.
+	- This stationary point really is a minimum (not a maximum or saddle) because $SSE$ is a quadratic bowl in $(\beta_0,\beta_1)$, and as long as the $x_i$ aren't all identical, $S_{xx}>0$, so the bowl opens upward.
+- The two normal equations from Steps 1–2 have a direct restatement in terms of the residuals: $\sum\hat e_i=0$ and $\sum x_i\hat e_i=0$.
+	- This is usually phrased as "the least-squares residual vector is orthogonal to the constant column and to $x$."
+	- In plain terms, that just means the leftover residual has nothing left to explain: no overall bias (the constant direction), and no leftover linear relationship with $x$ (the $x$ direction).
+- Centering around the mean keeps appearing throughout this derivation for a reason.
+	- $S_{xx}$ measures how spread out $x$ is around $\bar x$.
+	- $S_{xy}$ measures how $x$ and $y$ move together around their means.
+	- So $\hat\beta_1=S_{xy}/S_{xx}$ reads as "how much $y$ moves with $x$, relative to how much $x$ itself varies."
+- The exam workflow for a hand-computed fit is always the same chain of steps.
+	- Compute the five raw sums: $n,\sum x_i,\sum y_i,\sum x_i^2,\sum x_iy_i$.
+	- Convert to the means $\bar x,\bar y$.
+	- Convert to the centered sums $S_{xx},S_{xy}$.
+	- Compute $\hat\beta_1=S_{xy}/S_{xx}$, then $\hat\beta_0=\bar y-\hat\beta_1\bar x$.
+	- Write the fitted line, and if a residual is asked for, compute $\hat e_i=y_i-\hat y_i$ at the requested point.
 
 ## Practice Problems
 

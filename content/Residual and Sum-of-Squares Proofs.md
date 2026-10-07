@@ -1,24 +1,47 @@
 ## Concepts
 
-- Because the coefficients were chosen by minimizing SSE, the resulting residuals satisfy special cancellation / orthogonality identities. Those identities are the reason the total variation in $Y$ splits cleanly into explained and unexplained pieces — ANOVA and $R^2$ are consequences of least squares, not separate formulas to memorize.
-- Definitions used throughout: fitted value $\hat y_i=\hat\beta_0+\hat\beta_1x_i$; residual $\hat e_i=y_i-\hat y_i$; normal equations $\sum\hat e_i=0$ and $\sum x_i\hat e_i=0$ (these come directly from setting the two partial derivatives of SSE equal to zero).
-- **Proof 1 — $\sum\hat e_i=0$.** Start from $\hat e_i=y_i-\hat\beta_0-\hat\beta_1x_i$, sum over all $i$: $\sum\hat e_i=\sum y_i-n\hat\beta_0-\hat\beta_1\sum x_i$. The first normal equation says $n\hat\beta_0+\hat\beta_1\sum x_i=\sum y_i$, so substituting gives $\sum\hat e_i=\sum y_i-\sum y_i=0$. Meaning: positive and negative residuals exactly balance after fitting an intercept; the average residual is zero.
-	- This proof is really just the first normal equation, read backwards — differentiating SSE with respect to $\beta_0$ and setting it to zero *is* the statement $\sum\hat e_i=0$.
-- **Proof 2 — $\sum x_i\hat e_i=0$.** Multiply the residual by $x_i$ and sum: $\sum x_i\hat e_i=\sum x_iy_i-\hat\beta_0\sum x_i-\hat\beta_1\sum x_i^2$. The second normal equation says $\hat\beta_0\sum x_i+\hat\beta_1\sum x_i^2=\sum x_iy_i$, so the sum is $0$.
-	- Alternative route exposing $S_{xy}/S_{xx}$ directly: substitute $\hat\beta_0=\bar y-\hat\beta_1\bar x$ and $\sum x_i=n\bar x$ into the expansion, group terms to get $S_{xy}-\hat\beta_1S_{xx}$, then substitute $\hat\beta_1=S_{xy}/S_{xx}$ to get $S_{xy}-S_{xy}=0$.
-- **Proof 3 — $\sum\hat y_i\hat e_i=0$.** Write $\hat y_i=\hat\beta_0+\hat\beta_1x_i$, multiply by $\hat e_i$ and sum: $\sum\hat y_i\hat e_i=\hat\beta_0\sum\hat e_i+\hat\beta_1\sum x_i\hat e_i$. Both sums are $0$ by Proofs 1 and 2, so the whole thing is $0$ — the residual vector is orthogonal not only to the constant and $x$ columns, but also to the fitted values themselves (since fitted values are combinations of those two columns).
-	- This one is free once you have Proofs 1 and 2: $\hat y_i$ is nothing but a combination of the constant and $x_i$, and the residual is already orthogonal to both of those pieces individually.
-- What the three identities mean together: residuals are orthogonal to the intercept column, to the predictor column, and therefore to the fitted values. Geometrically, least squares splits the response into a fitted component in the "model space" and a residual component perpendicular to it.
-- The sum-of-squares quantities: $SST=\sum(y_i-\bar y)^2$ (total variation around the mean); $SS_{reg}=\sum(\hat y_i-\bar y)^2$ (explained, sometimes called $SSR$); $RSS=\sum(y_i-\hat y_i)^2=\sum\hat e_i^2$ (unexplained, sometimes called $SSE$).
-	- Naming warning: textbooks disagree on whether "SSR" means regression or residual — rely on the formula, not the three letters.
-- **Proof 4 — $SST=SS_{reg}+RSS$.**
-	- Step 1 — split each total deviation through the fitted value: $y_i-\bar y=(y_i-\hat y_i)+(\hat y_i-\bar y)=\hat e_i+(\hat y_i-\bar y)$. This writes "total deviation" as "unexplained + explained."
-		- It is the same telescoping trick as elsewhere in the course: insert and subtract $\hat y_i$ so one unfamiliar gap (data to overall mean) becomes two gaps you already have names for.
-	- Step 2 — square both sides: $(y_i-\bar y)^2=\hat e_i^2+2\hat e_i(\hat y_i-\bar y)+(\hat y_i-\bar y)^2$.
-	- Step 3 — sum over all observations: $SST=RSS+2\sum\hat e_i(\hat y_i-\bar y)+SS_{reg}$.
-	- Step 4 — show the cross term is zero: expand $\sum\hat e_i(\hat y_i-\bar y)=\sum\hat e_i\hat y_i-\bar y\sum\hat e_i$. By Proof 3, $\sum\hat e_i\hat y_i=0$; by Proof 1, $\sum\hat e_i=0$. So the cross term is $0$.
-		- This step is the whole payoff of Proofs 1–3: they exist specifically so this cross term dies, which is what makes $SST=SS_{reg}+RSS$ an exact equality instead of an approximation.
-	- Step 5 — conclude: $\boxed{SST=SS_{reg}+RSS}$. This works cleanly *because* least squares made the residuals orthogonal to the fitted values (Proof 3).
+- Least squares doesn't just hand you a slope and intercept — the way it chooses them forces the residuals to satisfy a few exact cancellation identities.
+	- Those identities are *why* the total variation in $Y$ splits cleanly into explained and unexplained pieces further down.
+	- So ANOVA and $R^2$ (covered in a later note) are consequences of least squares, not separate formulas to memorize from scratch.
+- A few definitions get reused in every proof below.
+	- The fitted value is $\hat y_i=\hat\beta_0+\hat\beta_1x_i$.
+	- The residual is the leftover gap: $\hat e_i=y_i-\hat y_i$.
+	- The two normal equations are $\sum\hat e_i=0$ and $\sum x_i\hat e_i=0$ — recall from the fitting derivation that these come directly from setting the two partial derivatives of SSE equal to zero.
+- **Proof 1 proves $\sum\hat e_i=0$** — the residuals sum to exactly zero.
+	- Start from the definition of the residual: $\hat e_i=y_i-\hat\beta_0-\hat\beta_1x_i$.
+	- Sum this over every observation: $\sum\hat e_i=\sum y_i-n\hat\beta_0-\hat\beta_1\sum x_i$.
+	- The first normal equation says $n\hat\beta_0+\hat\beta_1\sum x_i=\sum y_i$ — substitute that in.
+	- The right-hand side becomes $\sum y_i-\sum y_i=0$.
+	- This proof is really just the first normal equation, read backwards: differentiating SSE with respect to $\beta_0$ and setting it to zero *is* the statement $\sum\hat e_i=0$.
+	- In plain terms: positive and negative residuals exactly balance out once you've fit an intercept, so the average residual is zero.
+- **Proof 2 proves $\sum x_i\hat e_i=0$** — the residuals, each weighted by its own $x_i$, also sum to zero.
+	- Multiply the residual definition by $x_i$ and sum: $\sum x_i\hat e_i=\sum x_iy_i-\hat\beta_0\sum x_i-\hat\beta_1\sum x_i^2$.
+	- The second normal equation says $\hat\beta_0\sum x_i+\hat\beta_1\sum x_i^2=\sum x_iy_i$ — substitute that in, and the sum is $0$.
+	- An alternative route that exposes $S_{xy}/S_{xx}$ directly: substitute $\hat\beta_0=\bar y-\hat\beta_1\bar x$ and $\sum x_i=n\bar x$ into the expansion instead, group terms into $S_{xy}-\hat\beta_1S_{xx}$, then substitute $\hat\beta_1=S_{xy}/S_{xx}$ to get $S_{xy}-S_{xy}=0$.
+- **Proof 3 proves $\sum\hat y_i\hat e_i=0$** — the residuals are also orthogonal to the fitted values themselves, not just to the raw $x$'s.
+	- Write $\hat y_i=\hat\beta_0+\hat\beta_1x_i$ and multiply by $\hat e_i$: $\sum\hat y_i\hat e_i=\hat\beta_0\sum\hat e_i+\hat\beta_1\sum x_i\hat e_i$.
+	- Both of those sums are already known to be $0$, from Proofs 1 and 2 — so the whole thing is $0$.
+	- This proof is "free" once you have Proofs 1 and 2: $\hat y_i$ is nothing but a combination of the constant and $x_i$, and the residual is already orthogonal to both of those pieces individually.
+- Put together, the three proofs say the residual vector is orthogonal to the intercept column, to the predictor column, and therefore to the fitted values.
+	- Geometrically: least squares splits the observed response into a fitted piece that lives in the "model space," and a residual piece that is perpendicular to it.
+- Before Proof 4, three sum-of-squares quantities need defining — each one is a sum of squared gaps, just measured from a different reference point.
+	- $SST=\sum(y_i-\bar y)^2$ is the total variation: how far each $y_i$ sits from the overall mean $\bar y$.
+	- $SS_{reg}=\sum(\hat y_i-\bar y)^2$ is the explained variation: how far the model's fitted values sit from $\bar y$. Some sources call this $SSR$.
+	- $RSS=\sum(y_i-\hat y_i)^2=\sum\hat e_i^2$ is the unexplained variation: the leftover residuals, squared. Some sources call this $SSE$.
+	- Naming warning: textbooks disagree on whether "SSR" means regression or residual — rely on the formula itself, not the three letters.
+- **Proof 4 shows these three quantities fit together exactly: $SST=SS_{reg}+RSS$.**
+	- Step 1 splits each observation's total deviation into two pieces, by inserting and subtracting the fitted value $\hat y_i$: $y_i-\bar y=(y_i-\hat y_i)+(\hat y_i-\bar y)=\hat e_i+(\hat y_i-\bar y)$.
+		- This rewrites "total deviation" as "unexplained deviation plus explained deviation."
+		- It's the same telescoping trick used elsewhere in the course: insert and subtract a middle quantity so one unfamiliar gap becomes two gaps you already have names for.
+	- Step 2 squares both sides of that split: $(y_i-\bar y)^2=\hat e_i^2+2\hat e_i(\hat y_i-\bar y)+(\hat y_i-\bar y)^2$.
+	- Step 3 sums that equation over every observation: $SST=RSS+2\sum\hat e_i(\hat y_i-\bar y)+SS_{reg}$.
+	- Step 4 shows the middle "cross term" is exactly zero.
+		- Expand it: $\sum\hat e_i(\hat y_i-\bar y)=\sum\hat e_i\hat y_i-\bar y\sum\hat e_i$.
+		- The first piece is $0$ by Proof 3, and the second is $0$ by Proof 1.
+		- So the cross term vanishes entirely.
+		- This step is the whole payoff of Proofs 1–3 — they exist specifically so this cross term dies, which is what makes $SST=SS_{reg}+RSS$ an exact equality rather than an approximation.
+	- Step 5 drops the now-zero cross term to conclude: $\boxed{SST=SS_{reg}+RSS}$.
+	- This works cleanly *because* least squares made the residuals orthogonal to the fitted values (Proof 3) — a model that wasn't fit by least squares wouldn't get this identity for free.
 
 ## Practice Problems
 

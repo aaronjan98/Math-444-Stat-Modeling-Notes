@@ -2,24 +2,68 @@
 
 ## Concepts
 
-- After fitting, $\hat\beta_0$ and $\hat\beta_1$ are numbers for the observed sample. But before the sample is observed, the responses $Y_i$ are random, so the estimators are random variables too — this is where the standard errors used in inference actually come from.
-- Model assumptions used throughout: fixed predictor values $x_i$; $Y_i=\beta_0+\beta_1x_i+\varepsilon_i$; $E(\varepsilon_i)=0$; $\operatorname{Var}(\varepsilon_i)=\sigma^2$; errors independent. Therefore $E(Y_i)=\beta_0+\beta_1x_i$, $\operatorname{Var}(Y_i)=\sigma^2$, and $Y_i,Y_j$ independent for $i\neq j$.
-- **Rewrite the slope as a linear combination of the responses.** Start from $\hat\beta_1=S_{xy}/S_{xx}$, expand $S_{xy}=\sum(x_i-\bar x)(Y_i-\bar Y)$; the $\bar Y$ part drops because $\sum(x_i-\bar x)=0$, leaving $S_{xy}=\sum(x_i-\bar x)Y_i$. Define $c_i=\dfrac{x_i-\bar x}{S_{xx}}$, so $\boxed{\hat\beta_1=\sum_i c_iY_i}$ — this form makes expectation, variance, covariance, and normality all easy to handle.
-	- This is the whole reason the $c_i$ trick exists: once $\hat\beta_1$ is a weighted sum of the $Y_i$'s, every property below follows from ordinary linear-combination rules instead of fighting with $S_{xy}/S_{xx}$ directly.
-- Three $c_i$ identities, each just algebra on the definition:
-	- $\sum c_i=0$ (since $\sum(x_i-\bar x)=0$).
-	- $\sum c_ix_i=1$ (write $x_i=(x_i-\bar x)+\bar x$, expand, and the $\bar x\sum(x_i-\bar x)$ term vanishes, leaving $S_{xx}/S_{xx}=1$).
-	- $\sum c_i^2=1/S_{xx}$ (direct from $c_i=(x_i-\bar x)/S_{xx}$, squared and summed).
-- **Unbiasedness of the slope.** $E(\hat\beta_1)=E(\sum c_iY_i)=\sum c_iE(Y_i)=\sum c_i(\beta_0+\beta_1x_i)=\beta_0\sum c_i+\beta_1\sum c_ix_i=\beta_0(0)+\beta_1(1)=\beta_1$. So $\boxed{E(\hat\beta_1)=\beta_1}$.
-- **Variance of the slope.** Since the $Y_i$ are independent, $\operatorname{Var}(\hat\beta_1)=\sum c_i^2\operatorname{Var}(Y_i)=\sigma^2\sum c_i^2=\sigma^2/S_{xx}$, so $\boxed{\operatorname{Var}(\hat\beta_1)=\dfrac{\sigma^2}{S_{xx}}}$. Click point: a bigger spread in the $x$-values (larger $S_{xx}$) means a more precise slope estimate.
-- **Rewrite the intercept as a linear combination.** $\hat\beta_0=\bar Y-\hat\beta_1\bar x=\sum(\frac1n-\bar xc_i)Y_i$; define $d_i=\frac1n-\bar xc_i$, so $\hat\beta_0=\sum d_iY_i$.
-- **Unbiasedness of the intercept.** Using $\hat\beta_0=\bar Y-\bar x\hat\beta_1$: $E(\hat\beta_0)=E(\bar Y)-\bar xE(\hat\beta_1)=(\beta_0+\beta_1\bar x)-\bar x\beta_1=\beta_0$.
-- Bilinearity rules for covariance problems: constants pull out, $\operatorname{Cov}(aX,bY)=ab\operatorname{Cov}(X,Y)$; covariance distributes over sums; $\operatorname{Cov}(X,X)=\operatorname{Var}(X)$; independent variables have covariance $0$. For independent $Y_i$: $\operatorname{Cov}(\sum a_iY_i,\sum b_iY_i)=\sum a_ib_i\operatorname{Var}(Y_i)$ — the cross terms ($i\neq j$) vanish because $\operatorname{Cov}(Y_i,Y_j)=0$.
-- **$\operatorname{Cov}(\bar Y,\hat\beta_1)=0$.** Write $\bar Y=\sum\frac1nY_i$ and $\hat\beta_1=\sum c_iY_i$; by independence, $\operatorname{Cov}(\bar Y,\hat\beta_1)=\sum\frac1nc_i\operatorname{Var}(Y_i)=\frac{\sigma^2}n\sum c_i=0$ (using $\sum c_i=0$). This intermediate result makes both the intercept variance and the intercept-slope covariance simple.
-- **Variance of the intercept.** $\operatorname{Var}(\hat\beta_0)=\operatorname{Var}(\bar Y)+\bar x^2\operatorname{Var}(\hat\beta_1)-2\bar x\operatorname{Cov}(\bar Y,\hat\beta_1)$; the covariance term is $0$, and $\operatorname{Var}(\bar Y)=\sigma^2/n$, so $\boxed{\operatorname{Var}(\hat\beta_0)=\sigma^2\left(\dfrac1n+\dfrac{\bar x^2}{S_{xx}}\right)}$.
-- **Covariance of intercept and slope (the bilinearity proof itself).** Start from $\hat\beta_0=\bar Y-\bar x\hat\beta_1$, take covariance with $\hat\beta_1$: $\operatorname{Cov}(\hat\beta_0,\hat\beta_1)=\operatorname{Cov}(\bar Y,\hat\beta_1)-\bar x\operatorname{Cov}(\hat\beta_1,\hat\beta_1)=0-\bar x\operatorname{Var}(\hat\beta_1)$, so $\boxed{\operatorname{Cov}(\hat\beta_0,\hat\beta_1)=-\dfrac{\bar x\sigma^2}{S_{xx}}}$. Sanity check: if $\bar x>0$, the covariance is negative — tilting the slope up forces the intercept down so the line can still pass through $(\bar x,\bar y)$.
-- Sampling distributions under normal errors: if $\varepsilon_i\sim N(0,\sigma^2)$, linear combinations of jointly normal variables are normal, so $\hat\beta_1\sim N(\beta_1,\sigma^2/S_{xx})$ and $\hat\beta_0\sim N(\beta_0,\sigma^2(\frac1n+\frac{\bar x^2}{S_{xx}}))$ — the bridge to the $t$-procedures used for inference.
-- What changes when $\sigma^2$ is unknown: estimate it with $S^2=RSS/(n-2)$, replace $\sigma$ by $S$ in the standard deviations to get $SE(\hat\beta_1)=S/\sqrt{S_{xx}}$ and $SE(\hat\beta_0)=S\sqrt{\frac1n+\frac{\bar x^2}{S_{xx}}}$ — and the reference distribution changes from normal to $t_{n-2}$.
+- Once we fit a line, $\hat\beta_0$ and $\hat\beta_1$ are just numbers for the sample we happened to observe.
+	- But before the sample is observed, the responses $Y_i$ are random — a different sample would give different numbers.
+	- That makes the estimators $\hat\beta_0,\hat\beta_1$ random variables too, with their own mean, variance, and distribution.
+	- This is exactly where the standard errors used later in inference come from.
+- The model assumptions that everything below relies on:
+	- The predictor values $x_i$ are treated as fixed, known constants — not random.
+	- $Y_i=\beta_0+\beta_1x_i+\varepsilon_i$, with $E(\varepsilon_i)=0$ and $\operatorname{Var}(\varepsilon_i)=\sigma^2$, and the errors independent of each other.
+	- These assumptions carry over directly to $Y_i$: $E(Y_i)=\beta_0+\beta_1x_i$, $\operatorname{Var}(Y_i)=\sigma^2$, and $Y_i,Y_j$ independent for $i\neq j$.
+- **The key move: rewrite the slope as a weighted sum of the responses**, since that makes every property below easy to derive.
+	- Start from the familiar formula $\hat\beta_1=S_{xy}/S_{xx}$.
+	- Expand the numerator: $S_{xy}=\sum(x_i-\bar x)(Y_i-\bar Y)$.
+	- The $\bar Y$ part of that expansion drops out, because $\sum(x_i-\bar x)=0$ — leaving $S_{xy}=\sum(x_i-\bar x)Y_i$.
+	- Define a fixed weight for each observation: $c_i=\dfrac{x_i-\bar x}{S_{xx}}$ — fixed because it only depends on the (non-random) $x_i$'s.
+	- That gives $\boxed{\hat\beta_1=\sum_i c_iY_i}$ — the slope written as a weighted sum of the random $Y_i$'s, with fixed weights.
+	- This is the whole reason the $c_i$ trick exists: once $\hat\beta_1$ is a weighted sum of the $Y_i$'s, every property below follows from ordinary rules for linear combinations of random variables, instead of fighting with $S_{xy}/S_{xx}$ directly.
+- Three facts about the $c_i$ weights get used repeatedly below — each is just algebra on the definition of $c_i$.
+	- $\sum c_i=0$, since $\sum(x_i-\bar x)=0$.
+	- $\sum c_ix_i=1$ — write $x_i=(x_i-\bar x)+\bar x$, expand, and the $\bar x\sum(x_i-\bar x)$ term vanishes, leaving $S_{xx}/S_{xx}=1$.
+	- $\sum c_i^2=1/S_{xx}$ — direct from squaring $c_i=(x_i-\bar x)/S_{xx}$ and summing.
+- **The slope estimator is unbiased:** on average, across repeated samples, $\hat\beta_1$ centers on the true $\beta_1$.
+	- Take the expectation of the weighted-sum form: $E(\hat\beta_1)=E(\sum c_iY_i)=\sum c_iE(Y_i)$.
+	- Substitute $E(Y_i)=\beta_0+\beta_1x_i$: $=\sum c_i(\beta_0+\beta_1x_i)=\beta_0\sum c_i+\beta_1\sum c_ix_i$.
+	- Using the two $c_i$ facts above, $\sum c_i=0$ and $\sum c_ix_i=1$: $=\beta_0(0)+\beta_1(1)=\beta_1$.
+	- So $\boxed{E(\hat\beta_1)=\beta_1}$.
+- **The variance of the slope** measures how much $\hat\beta_1$ would bounce around from one sample to the next.
+	- Since the $Y_i$ are independent, variance distributes over the sum without any cross terms: $\operatorname{Var}(\hat\beta_1)=\sum c_i^2\operatorname{Var}(Y_i)$.
+	- Every $Y_i$ has the same variance $\sigma^2$, so this is $\sigma^2\sum c_i^2$.
+	- Using the third $c_i$ fact, $\sum c_i^2=1/S_{xx}$: $\boxed{\operatorname{Var}(\hat\beta_1)=\dfrac{\sigma^2}{S_{xx}}}$.
+	- Click point: a bigger spread in the $x$-values means a larger $S_{xx}$, which means a *smaller* variance — spreading your $x$'s out gives the slope estimate more leverage to be pinned down precisely.
+- The intercept can be rewritten as a weighted sum too, the same way the slope was.
+	- Start from $\hat\beta_0=\bar Y-\hat\beta_1\bar x$.
+	- Substitute $\bar Y=\sum\frac1nY_i$ and $\hat\beta_1=\sum c_iY_i$ and collect terms: $\hat\beta_0=\sum(\frac1n-\bar xc_i)Y_i$.
+	- Define $d_i=\frac1n-\bar xc_i$, so $\hat\beta_0=\sum d_iY_i$ — same trick, new weights.
+- **The intercept estimator is unbiased too**, by the same kind of argument.
+	- Using the simpler form $\hat\beta_0=\bar Y-\bar x\hat\beta_1$: $E(\hat\beta_0)=E(\bar Y)-\bar xE(\hat\beta_1)$.
+	- $E(\bar Y)=\beta_0+\beta_1\bar x$ (the average of the model's mean response), and $E(\hat\beta_1)=\beta_1$ from above.
+	- So $E(\hat\beta_0)=(\beta_0+\beta_1\bar x)-\bar x\beta_1=\beta_0$.
+- Covariance between two weighted sums follows four bilinearity rules, which every proof from here on leans on.
+	- Constants pull outside: $\operatorname{Cov}(aX,bY)=ab\operatorname{Cov}(X,Y)$.
+	- Covariance distributes over a sum, the same way multiplication distributes over addition.
+	- Covariance of something with itself is just its variance: $\operatorname{Cov}(X,X)=\operatorname{Var}(X)$.
+	- Independent random variables have covariance $0$ — so for independent $Y_i$, $\operatorname{Cov}(\sum a_iY_i,\sum b_iY_i)=\sum a_ib_i\operatorname{Var}(Y_i)$, since every cross term with $i\neq j$ vanishes.
+- **An intermediate result, $\operatorname{Cov}(\bar Y,\hat\beta_1)=0$, makes the next two proofs simple.**
+	- Write both as weighted sums: $\bar Y=\sum\frac1nY_i$ and $\hat\beta_1=\sum c_iY_i$.
+	- By independence, $\operatorname{Cov}(\bar Y,\hat\beta_1)=\sum\frac1nc_i\operatorname{Var}(Y_i)=\frac{\sigma^2}n\sum c_i$.
+	- Using $\sum c_i=0$ from above, this is $0$.
+- **The variance of the intercept** follows from the usual variance-of-a-difference formula, now that the covariance piece is known.
+	- $\operatorname{Var}(\hat\beta_0)=\operatorname{Var}(\bar Y)+\bar x^2\operatorname{Var}(\hat\beta_1)-2\bar x\operatorname{Cov}(\bar Y,\hat\beta_1)$.
+	- The covariance term is $0$ (just shown), and $\operatorname{Var}(\bar Y)=\sigma^2/n$ since the $Y_i$ are independent with common variance.
+	- So $\boxed{\operatorname{Var}(\hat\beta_0)=\sigma^2\left(\dfrac1n+\dfrac{\bar x^2}{S_{xx}}\right)}$.
+- **The covariance between the intercept and slope — the bilinearity proof itself.**
+	- Start from $\hat\beta_0=\bar Y-\bar x\hat\beta_1$, and take the covariance of both sides with $\hat\beta_1$: $\operatorname{Cov}(\hat\beta_0,\hat\beta_1)=\operatorname{Cov}(\bar Y,\hat\beta_1)-\bar x\operatorname{Cov}(\hat\beta_1,\hat\beta_1)$.
+	- The first term is $0$ (shown above), and the second term is just $\operatorname{Var}(\hat\beta_1)=\sigma^2/S_{xx}$.
+	- So $\boxed{\operatorname{Cov}(\hat\beta_0,\hat\beta_1)=-\dfrac{\bar x\sigma^2}{S_{xx}}}$.
+	- Sanity check: if $\bar x>0$, the covariance is negative — tilting the slope up forces the intercept down so the line can still pass through $(\bar x,\bar y)$.
+- Once errors are assumed normal, the estimators have a known sampling distribution, which is what makes $t$-based inference exact in small samples.
+	- Linear combinations of jointly normal variables are themselves normal, and $\hat\beta_1,\hat\beta_0$ are both linear combinations of the $Y_i$'s.
+	- So $\hat\beta_1\sim N(\beta_1,\sigma^2/S_{xx})$ and $\hat\beta_0\sim N(\beta_0,\sigma^2(\frac1n+\frac{\bar x^2}{S_{xx}}))$.
+- In practice $\sigma^2$ is never actually known, so one more substitution is needed before any of this is usable.
+	- Estimate it with $S^2=RSS/(n-2)$.
+	- Replace $\sigma$ by $S$ inside each standard deviation above: $SE(\hat\beta_1)=S/\sqrt{S_{xx}}$ and $SE(\hat\beta_0)=S\sqrt{\frac1n+\frac{\bar x^2}{S_{xx}}}$.
+	- That substitution is also what changes the reference distribution from normal to $t_{n-2}$ in the inference formulas later.
 
 ## Practice Problems
 
