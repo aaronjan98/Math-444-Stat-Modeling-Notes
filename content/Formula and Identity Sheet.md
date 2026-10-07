@@ -1,5 +1,3 @@
-# Formula and Identity Sheet
-
 - A one-page reference for the notation, identities, and assumptions that connect every note. The derivations and worked examples live in the linked notes.
 
 1. **Core notation**

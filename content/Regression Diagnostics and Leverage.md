@@ -1,5 +1,3 @@
-# Regression Diagnostics and Leverage
-
 - Problem types covered
 	- **Type 9:** residual diagnostics — read the plot
 	- **Type 10:** leverage

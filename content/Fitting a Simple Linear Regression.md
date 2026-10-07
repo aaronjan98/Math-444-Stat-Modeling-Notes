@@ -1,5 +1,3 @@
-# Fitting a Simple Linear Regression
-
 - Problem types covered
 	- **Type 1:** hand-compute an SLR fit
 	- **Type 2:** derive the least-squares estimators / normal equations

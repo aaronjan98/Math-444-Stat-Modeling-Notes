@@ -1,5 +1,3 @@
-# Residual and Sum-of-Squares Proofs
-
 - Problem types covered
 	- **Type 3:** residual-property proofs
 	- **Type 4:** prove the sum-of-squares decomposition

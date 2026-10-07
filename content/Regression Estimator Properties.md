@@ -1,5 +1,3 @@
-# Regression Estimator Properties
-
 - Problem types covered
 	- **Type 8:** covariance / variance bilinearity proof
 

@@ -1,5 +1,3 @@
-# Regression Inference and ANOVA
-
 - Problem types covered
 	- **Type 5:** $R^2$ — compute and interpret
 	- **Type 6:** inference on the slope and intercept
