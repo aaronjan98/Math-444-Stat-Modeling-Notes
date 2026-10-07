@@ -1,27 +1,6 @@
 # Formula and Identity Sheet
 
-- Parent: [[Exam 1]]
 - A one-page reference for the notation, identities, and assumptions that connect every note. The derivations and worked examples live in the linked notes.
-
-1. **The whole course story in one chain**
-	- **Model**
-		- $\displaystyle Y_i=\beta_0+\beta_1x_i+\varepsilon_i.$
-	- **Fit**
-		- choose $\hat\beta_0,\hat\beta_1$ that minimize squared residuals
-	- **Residuals**
-		- $\displaystyle \hat e_i=y_i-\hat y_i$
-		- least squares forces important residual identities
-	- **Estimator uncertainty**
-		- $\hat\beta_0$ and $\hat\beta_1$ are random because they depend on random responses $Y_i$
-		- their variances become the standard errors used in $t$ inference
-	- **Variation decomposition**
-		- $\displaystyle SST=SS_{reg}+RSS$
-		- this produces $R^2$ and the ANOVA table
-	- **Diagnostics**
-		- residual patterns test whether the fitted straight-line model is reasonable
-		- leverage measures how unusual an observation's predictor value is
-	- **R output**
-		- `summary(lm())` reports the same estimates, standard errors, tests, $R^2$, residual scale, and $F$ test produced by the theory
 
 1. **Core notation**
 	- Observed data: $(x_i,y_i)$ for $i=1,\dots,n$
