@@ -1,7 +1,3 @@
-- Problem types covered
-	- **Type 9:** residual diagnostics — read the plot
-	- **Type 10:** leverage
-
 ## Concepts
 
 - Regression calculations always produce a fitted line, even when a straight-line model is wrong. Diagnostics ask whether the assumptions behind that line and its inference are believable, and whether individual observations have unusual predictor values or disproportionate influence. End goal: look at a plot or an observation and identify exactly what kind of problem it represents.

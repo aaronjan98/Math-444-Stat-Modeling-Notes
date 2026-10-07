@@ -1,11 +1,11 @@
-- Problem types covered
-	- **Type 8:** covariance / variance bilinearity proof
+- Mean, variance, and covariance of the least-squares estimators, derived via covariance bilinearity.
 
 ## Concepts
 
 - After fitting, $\hat\beta_0$ and $\hat\beta_1$ are numbers for the observed sample. But before the sample is observed, the responses $Y_i$ are random, so the estimators are random variables too — this is where the standard errors used in inference actually come from.
 - Model assumptions used throughout: fixed predictor values $x_i$; $Y_i=\beta_0+\beta_1x_i+\varepsilon_i$; $E(\varepsilon_i)=0$; $\operatorname{Var}(\varepsilon_i)=\sigma^2$; errors independent. Therefore $E(Y_i)=\beta_0+\beta_1x_i$, $\operatorname{Var}(Y_i)=\sigma^2$, and $Y_i,Y_j$ independent for $i\neq j$.
 - **Rewrite the slope as a linear combination of the responses.** Start from $\hat\beta_1=S_{xy}/S_{xx}$, expand $S_{xy}=\sum(x_i-\bar x)(Y_i-\bar Y)$; the $\bar Y$ part drops because $\sum(x_i-\bar x)=0$, leaving $S_{xy}=\sum(x_i-\bar x)Y_i$. Define $c_i=\dfrac{x_i-\bar x}{S_{xx}}$, so $\boxed{\hat\beta_1=\sum_i c_iY_i}$ — this form makes expectation, variance, covariance, and normality all easy to handle.
+	- This is the whole reason the $c_i$ trick exists: once $\hat\beta_1$ is a weighted sum of the $Y_i$'s, every property below follows from ordinary linear-combination rules instead of fighting with $S_{xy}/S_{xx}$ directly.
 - Three $c_i$ identities, each just algebra on the definition:
 	- $\sum c_i=0$ (since $\sum(x_i-\bar x)=0$).
 	- $\sum c_ix_i=1$ (write $x_i=(x_i-\bar x)+\bar x$, expand, and the $\bar x\sum(x_i-\bar x)$ term vanishes, leaving $S_{xx}/S_{xx}=1$).

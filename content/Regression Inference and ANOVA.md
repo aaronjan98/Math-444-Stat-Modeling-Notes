@@ -1,8 +1,3 @@
-- Problem types covered
-	- **Type 5:** $R^2$ — compute and interpret
-	- **Type 6:** inference on the slope and intercept
-	- **Type 7:** ANOVA / $F$-test
-
 ## Concepts
 
 - The fitted coefficients describe the sample, but inference makes statements about the population regression relationship. That needs an estimate of the error variance, standard errors for the estimators, a reference distribution, and a way to measure how much variation the regression explains — the goal is to move fluently among coefficient inference, $R^2$, and ANOVA instead of treating them as unrelated topics.
@@ -26,8 +21,8 @@
 		- $R^2=0.994$: distance explains about 99.4% of the variation in fare
 		- residual standard error $=10.41$ on $15$ df: typical miss of about \$10.41
 		- observed distances run 90 to 1828 miles, so $500$ is inside the range (interpolation, reliable)
-		- fitted value at $500$: $48.9718+0.2197(500)\approx\$158.82$
-		- 95% prediction interval $\approx(\$135.79,\$181.85)$
+		- fitted value at $500$: $48.9718+0.2197(500)\approx158.82$ — about \$158.82
+		- 95% prediction interval $\approx(135.79,181.85)$ — about \$135.79 to \$181.85
 
 - **Problem 2 (HW1 Q6 — mtcars: `mpg ~ wt`, $n=32$).** Fitted line $\widehat{mpg}=37.285-5.344\,wt$. Interpret the slope and intercept; report and interpret $R^2$.
 	- *Solution.*

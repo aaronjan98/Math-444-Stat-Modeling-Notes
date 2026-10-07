@@ -1,6 +1,4 @@
-- Problem types covered
-	- **Type 11:** interpret R output
-	- Not a standalone exam question type on its own — it's the presentation format any of the problems above could be posed in. Any of types 1, 5, 6, 7, 9, or 10 could show up as "here's `summary(lm())` / `anova()` / a plot — answer this," instead of a raw data table.
+- Not a standalone exam question type on its own — it's the presentation format any of the other problems could be posed in: "here's `summary(lm())` / `anova()` / a plot — answer this," instead of a raw data table.
 
 ## Concepts
 
