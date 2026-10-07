@@ -1,4 +1,6 @@
-# Math 444 — Stat Modeling
+---
+title: Math 444 — Stat Modeling
+---
 
 - [[Exam 1]]
 	- [[Fitting a Simple Linear Regression]]
