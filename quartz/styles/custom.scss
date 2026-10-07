@@ -1,3 +1,9 @@
 @use "./base.scss";
 
-// put your custom CSS here!
+// Space out loose-list entries (a blank line between bullets in the markdown,
+// e.g. each Problem in a note's Practice Problems list) so they don't stack
+// directly on top of each other. Nested/tight bullets (derivation steps,
+// Concepts) are untouched since they render without the <p> wrapper.
+article.popover-hint > ul > li > p:first-child {
+  margin-top: 1.25rem;
+}
