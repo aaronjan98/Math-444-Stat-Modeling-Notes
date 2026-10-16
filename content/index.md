@@ -9,3 +9,5 @@ title: Math 444 — Stat Modeling
 	- [[Regression Inference and ANOVA]]
 	- [[Regression Diagnostics and Leverage]]
 	- [[Reading R Regression Output]]
+- Class Notes
+	- [[Class Notes stat modeling 15.10.26]]
