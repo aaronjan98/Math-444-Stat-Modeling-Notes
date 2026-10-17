@@ -13,19 +13,20 @@
 	- If the question instead asks about a nonzero null like $H_0:\beta_1=1$, the printed `t value` is the wrong number to use — recompute it by hand as $t=(\hat\beta_1-1)/SE(\hat\beta_1)$.
 - **The residual standard error line** reports the overall scale of a typical miss.
 	- It reads `Residual standard error: ... on ... degrees of freedom`.
-	- The number itself is $S=\sqrt{MSE}=\sqrt{RSS/(n-2)}$, and the degrees of freedom should always be $n-2$.
+	- The number itself is $S=\sqrt{MSE}=\sqrt{RSS/(n-k-1)}$, where $k$ is the number of predictors — simple linear regression is the $k=1$ special case, giving the familiar $n-2$.
 	- It's measured in the same units as the response, and gives a rough sense of how far off a typical prediction is.
 - **Multiple R-squared** is the same $R^2$ from the decomposition note, just printed under a different name.
 	- $R^2=1-RSS/SST=SS_{reg}/SST$.
 	- Read it as "$100R^2\%$ of the total sample variability in the response is explained by the fitted regression" — not as a percent causal effect.
 	- R also prints an adjusted $R^2$, which penalizes for model complexity; in simple linear regression the *ordinary* $R^2$ is still the one tied directly to the $SS_{reg}/SST$ formula.
 - **The $F$-statistic line** reports the overall model test, with the numerator/denominator degrees of freedom and a $p$-value attached.
-	- In simple linear regression: numerator df is always $1$, denominator df is always $n-2$, and the test is $H_0:\beta_1=0$.
-	- Since $F=t^2$ in SLR (shown in the Inference and ANOVA note), the $F$-test's $p$-value always matches the two-sided slope test's $p$-value.
+	- Numerator df $=k$ (the number of predictors) and denominator df $=n-k-1$; the test is always the global $H_0:\beta_1=\cdots=\beta_k=0$ — see [[MLR Inference, ANOVA, and Adjusted R-Squared]] for the full derivation once $k>1$.
+	- In simple linear regression $k=1$, so numerator df is always $1$, denominator df is always $n-2$, and $F=t^2$ for the single slope's two-sided test (shown in the Inference and ANOVA note) — the $F$-test's $p$-value matches that slope test's $p$-value exactly.
+	- With $k>1$ predictors, $F$ no longer equals any single coefficient's $t^2$ — it tests all of them jointly, not one at a time; to test a subset instead of every predictor at once, see [[Partial F-Tests for Subsets of Predictors]].
 - A few fast consistency checks can catch a transcription mistake before it costs points on an exam.
-	- The predictor's `t value` should equal `Estimate / Std. Error`.
-	- The residual degrees of freedom should equal $n-2$.
-	- The $F$ statistic should equal the squared slope $t$-statistic.
+	- Each predictor's `t value` should equal `Estimate / Std. Error`.
+	- The residual degrees of freedom should equal $n-k-1$ (with $k=1$ giving SLR's familiar $n-2$).
+	- In simple linear regression only, the $F$ statistic should equal the squared slope $t$-statistic; with $k>1$ predictors, $F$ tests all of them jointly and generally won't match any single $t^2$.
 	- A large $R^2$ should correspond to a small $RSS$ relative to $SST$.
 - **`anova(m)`** prints the sum-of-squares table directly, instead of the coefficient-focused view from `summary()`.
 	- The regression row has $SS_{reg}$, df $1$, $MS_{reg}$, and $F$.
@@ -49,6 +50,7 @@
 	5. compare $p$ to $\alpha$ and state the conclusion in context
 	6. use $R^2$ and residual standard error to describe fit
 	7. read the overall $F$ line and, in SLR, connect it to the slope test
+	- With more than one predictor, step 2's interpretation must say "holding the other predictors fixed" or it's graded as incomplete — see [[MLR Inference, ANOVA, and Adjusted R-Squared]].
 
 ## Practice Problems
 
@@ -117,3 +119,25 @@
 		- $t=49.69$ (very large, matches the near-perfect $R^2=0.994$)
 		- $F=2469\approx49.69^2$, confirming $F=t^2$
 		- residual df $=15=n-2$ for $n=17$
+
+- **Problem 4 — real fourth dataset, multiple predictors (`mtcars`, `mpg ~ disp + hp + drat + wt`, $n=32$).**
+	```
+	Coefficients:
+	             Estimate Std. Error t value Pr(>|t|)
+	(Intercept) 29.148738   6.293588   4.631  8.2e-05 ***
+	disp         0.003815   0.010805   0.353  0.72675
+	hp          -0.034784   0.011597  -2.999  0.00576 **
+	drat         1.768049   1.319779   1.340  0.19153
+	wt          -3.479668   1.078371  -3.227  0.00327 **
+	---
+	Residual standard error: 2.602 on 27 degrees of freedom
+	Multiple R-squared:  0.8376,	Adjusted R-squared:  0.8136
+	F-statistic: 34.82 on 4 and 27 DF,  p-value: 2.704e-10
+	```
+	- *Solution.*
+		- fitted model $\widehat{mpg}=29.149+0.0038\,disp-0.0348\,hp+1.768\,drat-3.480\,wt$
+		- `hp` and `wt` are individually significant *given the other three predictors are in the model*; `disp` and `drat` are not
+		- residual df $=27=n-k-1=32-4-1$, matching $k=4$ predictors
+		- global $F=34.82$ on $(4,27)$ df tests $H_0:\beta_{disp}=\beta_{hp}=\beta_{drat}=\beta_{wt}=0$ jointly — not the same test as any individual coefficient's $t$
+		- $F$ does **not** equal any single $t^2$ here (e.g. `wt`'s $t^2=10.41\neq34.82$) — the SLR-only shortcut from Problems 1-3 above doesn't carry over once $k>1$
+		- $R^2=0.838$ and adjusted $R^2=0.814$ are noticeably different, since $k=4$ predictors already cost more against $n=32$ than SLR's single predictor would

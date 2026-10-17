@@ -25,5 +25,11 @@
 1. **[[Reading R Regression Output]]**
 	- translate `summary(lm())` / `anova()` / `confint()` back into the math — not a standalone question type, a presentation format the above could all appear in
 
-1. **[[Class Notes stat modeling 15.10.26]]** (Model Selection and Adjusted $R^2$ section)
-	- adjusted $R^2$ vs. plain $R^2$; why adjusted $R^2$ exists; $R^2_{adj}\le R^2$ proof; comparing models of different sizes
+1. **[[Fitting a Multiple Linear Regression]]**
+	- matrix LSE $\hat\beta=(X'X)^{-1}X'Y$; hat matrix $H$ and its properties; generalized leverage $h_{ii}>2p/n$; polynomial regression as MLR
+
+1. **[[MLR Inference, ANOVA, and Adjusted R-Squared]]**
+	- global $F$-test; deriving $F$ from $R^2$ alone; coefficient $t$-tests as partial tests; adjusted $R^2$ and the $R^2_{adj}\le R^2$ proof
+
+1. **[[Partial F-Tests for Subsets of Predictors]]**
+	- testing a subset of predictors jointly; Type I (sequential) vs. Type III (added-last) sums of squares; nested-model exam checklist

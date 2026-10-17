@@ -52,3 +52,25 @@
 		- $RSS$ = residual / unexplained variation $=\sum\hat e_i^2$
 	- Some sources write $SSR$ for the regression sum of squares and $SSE$ for the error sum of squares.
 	- Rely on the actual formula, not the abbreviation.
+
+1. **Multiple linear regression (MLR) — notation for $k$ predictors**
+	- Matrix form: $Y=X\beta+\epsilon$, with $X$ an $n\times(k+1)$ design matrix (intercept column plus $k$ predictor columns)
+	- Least-squares estimator
+		- $\displaystyle \hat\beta=(X'X)^{-1}X'Y$
+	- Hat matrix and its two defining properties
+		- $\displaystyle H=X(X'X)^{-1}X', \qquad \hat Y=HY, \qquad \hat e=(I-H)Y$
+		- $H'=H$ (symmetric), $H^2=H$ (idempotent), $HX=X$, $\operatorname{tr}(H)=p$ where $p=k+1$
+	- Leverage of observation $i$ is $h_{ii}$, the $i$-th diagonal entry of $H$
+		- $\displaystyle \sum_i h_{ii}=p, \qquad$ flag $h_{ii}>\frac{2p}{n}$ (SLR's $4/n$ is this with $p=2$)
+	- ANOVA degrees of freedom: regression $k$, residual $n-k-1$, total $n-1$ ($k=1$ recovers every SLR formula above)
+
+1. **MLR global $F$-test and $R^2_{adj}$**
+	- Global $F$-test, $H_0:\beta_1=\cdots=\beta_k=0$
+		- $\displaystyle F=\frac{SS_{reg}/k}{RSS/(n-k-1)}=\frac{n-k-1}{k}\cdot\frac{R^2}{1-R^2}\sim F_{k,\,n-k-1}$
+	- Adjusted $R^2$
+		- $\displaystyle R^2_{adj}=1-\frac{RSS/(n-k-1)}{SST/(n-1)}=1-\frac{n-1}{n-k-1}(1-R^2)$
+		- Always $R^2_{adj}\le R^2$, with equality only at $k=0$ or $R^2=1$
+	- Partial $F$-test for a subset of $q$ predictors, reduced model $R$ vs. full model $F$
+		- $\displaystyle F=\frac{(RSS_R-RSS_F)/q}{RSS_F/(n-p-q-1)}\sim F_{q,\,n-p-q-1}$
+		- For $q=1$: $F=t^2$, same test as the coefficient's own $t$-test
+	- Interpreting any $\hat\beta_j$ with $k>1$ predictors requires "holding the other predictors constant" explicitly

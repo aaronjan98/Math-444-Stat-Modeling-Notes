@@ -1,0 +1,75 @@
+## Concepts
+
+- A response often depends on more than one predictor, and using only one can leave out information that actually matters for explaining it.
+	- Example: college GPA may depend on SAT score, credit hours, and study time together, not any one of those alone.
+	- Leaving out a predictor that truly matters doesn't just lose explanatory power — [[Residual and Sum-of-Squares Proofs]]'s omitted-term mechanics (and [[HW 2 - Regression Inference and Diagnostics]] Problem 2) show it leaves a systematic, non-random pattern in the residuals.
+- The general multiple linear regression (MLR) model adds $k$ predictors instead of one: $Y_i=\beta_0+\beta_1X_{i1}+\cdots+\beta_kX_{ik}+\epsilon_i$.
+	- $E(Y_i\mid X_{i1},\ldots,X_{ik})=\beta_0+\sum_{j=1}^k\beta_jX_{ij}$ is the population response plane (a hyperplane once $k>2$).
+	- The $\beta_j$'s are unknown population parameters; $\hat\beta_j$ denotes their least-squares estimate from the sample, exactly as in SLR.
+	- The same four error assumptions from [[Fitting a Simple Linear Regression]] carry over unchanged: $E(\epsilon_i\mid X)=0$, constant variance $\operatorname{Var}(\epsilon_i\mid X)=\sigma^2$, independence across $i$, and (for exact small-sample inference) normality, $\epsilon_i\overset{ind}{\sim}N(0,\sigma^2)$.
+- **"Linear" describes the coefficients, not the geometric shape in $X$** — this is why polynomial and interaction terms still count as MLR.
+	- $E(Y\mid X)=\beta_0+\beta_1X+\beta_2X^2$ is a *linear regression model*, because it's linear in $\beta_0,\beta_1,\beta_2$ even though the curve itself is a parabola in $X$.
+	- In R, wrap a derived term like $X^2$ in `I()` — `lm(y ~ x + I(x^2))` — so it's treated as its own new predictor column rather than literal exponentiation inside the formula syntax.
+	- With two raw predictors $X_1,X_2$, a complete second-order model can include $X_1,X_2,X_1^2,X_2^2,X_1X_2$; the cross term $X_1X_2$ is called an interaction and is second order even though neither variable alone is squared.
+- **Matrix form packages the whole model as one equation**, which is what makes a closed-form solution for $k$ predictors possible at all.
+	- Stack the model as $Y=X\beta+\epsilon$, where $Y$ is $n\times1$, $X$ is the $n\times(k+1)$ design matrix (a leading column of $1$'s for the intercept, then one column per predictor), $\beta$ is $(k+1)\times1$, and $\epsilon$ is $n\times1$.
+	- Minimizing $RSS=\sum_i(Y_i-b_0-b_1X_{i1}-\cdots-b_kX_{ik})^2=(Y-Xb)'(Y-Xb)$ over $b$ and setting the matrix derivative to zero gives the normal equations $X'Xb=X'Y$.
+	- As long as $X$ has full column rank (no predictor is an exact linear combination of the others), $X'X$ is invertible and $\boxed{\hat\beta=(X'X)^{-1}X'Y}$ — the direct generalization of $\hat\beta_1=S_{xy}/S_{xx}$.
+	- Fitted values are $\hat Y_i=\hat\beta_0+\sum_j\hat\beta_jX_{ij}$ and residuals are $\hat e_i=Y_i-\hat Y_i$, same definitions as SLR, just with more terms inside $\hat Y_i$.
+- **The hat matrix writes the whole fitting step as one linear map of $Y$.**
+	- Define $H=X(X'X)^{-1}X'$; substituting $\hat\beta=(X'X)^{-1}X'Y$ into $\hat Y=X\hat\beta$ gives $\boxed{\hat Y=HY}$ — $H$ sends the observed responses directly to the fitted values.
+	- The residual vector is then $\hat e=Y-\hat Y=Y-HY=(I-H)Y$ — also a linear map of $Y$, via $I-H$ instead of $H$.
+	- $H$ depends only on $X$ (the predictor values), never on $Y$ — the same fact that made SLR's leverage $h_{ii}$ depend only on the $x$'s.
+- **$H$'s algebraic properties are what make variances and expectations of $\hat e$ collapse to clean closed forms**, so they're worth having on hand, not just as trivia.
+	- $H$ is symmetric, $H'=H$: since $(ABC)'=C'B'A'$, $H'=X[(X'X)^{-1}]'X'$, and $X'X$ is itself symmetric (so its inverse is too), giving back $H'=X(X'X)^{-1}X'=H$.
+	- $H$ is idempotent, $H^2=H$: $H^2=X(X'X)^{-1}X'X(X'X)^{-1}X'$, and the middle $X'X\cdot(X'X)^{-1}=I$ collapses the expression straight back to $H$ — applying the projection twice does nothing new.
+	- $I-H$ is also symmetric and idempotent, by the same two facts: $(I-H)'=I-H$ directly, and $(I-H)^2=I-2H+H^2=I-2H+H=I-H$.
+	- $HX=X$: the design matrix's own columns already sit in the space $H$ projects onto, so projecting them changes nothing; consequently $(I-H)X=0$.
+	- $\operatorname{tr}(H)=p$, where $p=k+1$ is the number of estimated parameters (including the intercept) — the trace of the hat matrix always equals exactly the number of parameters fit, regardless of the data.
+	- Every diagonal entry satisfies $0\le h_{ii}\le1$.
+- **Why the fitted plane always passes through the centroid $(\bar X_1,\ldots,\bar X_k,\bar Y)$** — a direct consequence of fitting with an intercept, not a coincidence.
+	- Minimizing $RSS$ with respect to $b_0$ gives the normal equation $\sum_i(Y_i-\hat Y_i)=0$.
+	- Substituting $\hat Y_i=\hat\beta_0+\sum_j\hat\beta_jX_{ij}$ and dividing by $n$: $\hat\beta_0=\bar Y-\sum_j\hat\beta_j\bar X_j$.
+	- Plugging $X_1=\bar X_1,\ldots,X_k=\bar X_k$ into the fitted equation then gives exactly $\hat Y(\bar X_1,\ldots,\bar X_k)=\bar Y$ — the plane contains the point of means.
+- **The variance of the residual vector has a clean matrix form, but it is not simply a diagonal matrix of per-observation variances.**
+	- Using $\operatorname{Var}(AY)=A\operatorname{Var}(Y)A'$ for a fixed matrix $A$, with $A=I-H$ and $\operatorname{Var}(Y)=\sigma^2I$: $\operatorname{Var}(\hat e)=(I-H)\sigma^2I(I-H)'=\sigma^2(I-H)(I-H)=\sigma^2(I-H)$, using symmetry and idempotence of $I-H$.
+	- Written out, the diagonal entries are $\sigma^2(1-h_{ii})$ — the familiar per-observation residual variance — but the off-diagonal entries are $-\sigma^2h_{ij}$, nonzero covariances: fitted residuals are correlated with each other even though the original $Y_i$'s are independent.
+	- $E(\hat e)=(I-H)E(Y)=(I-H)X\beta=X\beta-HX\beta=X\beta-X\beta=0$, using $HX=X$ — residuals are unbiased for the true errors on average, same conclusion as SLR.
+- **Leverage generalizes directly: $h_{ii}$ is the $i$-th diagonal entry of $H$, and it only ever depends on the predictor values.**
+	- In simple linear regression this collapses to the familiar closed form $h_{ii}=\frac1n+\frac{(x_i-\bar x)^2}{S_{xx}}$, from [[Regression Diagnostics and Leverage]] — a special case of the general $H=X(X'X)^{-1}X'$ formula with only one predictor.
+	- With $k$ predictors there's no single clean algebraic formula like SLR's — $h_{ii}$ has to come from the matrix computation (or `hatvalues()` in R) — but $\sum_ih_{ii}=\operatorname{tr}(H)=p$ still always holds, generalizing SLR's "leverages sum to $2$."
+	- The high-leverage flag generalizes the same way: flag observation $i$ when $h_{ii}$ exceeds twice the average leverage, $\boxed{h_{ii}>\dfrac{2p}{n}}$ — SLR's $4/n$ cutoff is exactly this with $p=2$.
+- **Polynomial regression is just MLR with derived predictor columns, not a separate technique.**
+	- $Y_i=\beta_0+\beta_1X_i+\beta_2X_i^2+\epsilon_i$ fits the matrix framework above directly, with the design matrix's second column being $X_i$ and third column being $X_i^2$ — still linear in $\beta_0,\beta_1,\beta_2$, so $\hat\beta=(X'X)^{-1}X'Y$ applies unchanged.
+	- Because it's an ordinary MLR fit, every tool above — the hat matrix, its leverage, the $2p/n$ cutoff — applies to a polynomial fit exactly as written, just with $p$ counting however many polynomial terms (plus intercept) were fit.
+- If the model isn't linear in the *parameters* (e.g. $Y=\beta_0e^{\beta_1X}+\epsilon$), there's no closed-form $\hat\beta=(X'X)^{-1}X'Y$ at all — fitting falls back to an iterative numerical search for where $\partial(RSS)/\partial\beta=0$, done by computer since there's no clean algebraic solution.
+
+## Practice Problems
+
+- **Problem 1 — polynomial regression as MLR (HW2's `profsalary.txt`, $n=143$, fitting $Salary=\beta_0+\beta_1Experience+\beta_2Experience^2+\epsilon$).** Fit the quadratic model, verify $\operatorname{tr}(H)=p$, find the leverage cutoff, and compare to the plain linear fit from [[HW 2 - Regression Inference and Diagnostics]] Problem 1.
+	- *Solution.*
+		- `m2 <- lm(Salary ~ Experience + I(Experience^2), data = prof)` gives $\widehat{Salary}=34.720+2.872\,Experience-0.0533\,Experience^2$
+		- $p=3$ parameters ($\beta_0,\beta_1,\beta_2$); `sum(hatvalues(m2))` $=3.000$, confirming $\operatorname{tr}(H)=p$
+		- cutoff $2p/n=6/143\approx0.0420$; 18 of the 143 observations exceed it — far more flagged than the linear fit's handful, since adding a squared term changes which experience values count as "extreme"
+		- $R^2$ jumps from $0.675$ (linear, HW2 Problem 1) to $0.925$ (quadratic) — the curvature HW2 Problem 1(g)/(h) found by eye (an upside-down-U residual pattern) is exactly what the squared term captures
+		- adjusted $R^2=0.924$, barely below plain $R^2=0.925$ — the one added parameter cost almost nothing against the huge gain in explained variation, unlike adding a genuinely useless predictor (see [[MLR Inference, ANOVA, and Adjusted R-Squared]] Problem 2)
+
+- **Problem 2 — hat matrix trace and leverage cutoff on a real 4-predictor model (`mtcars`, $Y=mpg$, $X=$`disp, hp, drat, wt`, $n=32$).** Confirm $\operatorname{tr}(H)=p$, compute the leverage cutoff, and identify which car is flagged.
+	- *Solution.*
+		- `model1 <- lm(mpg ~ disp + hp + drat + wt, data = mtcars)`; $p=5$ (intercept plus 4 predictors)
+		- `sum(hatvalues(model1))` $=5.000$, confirming $\operatorname{tr}(H)=p$
+		- cutoff $2p/n=10/32=0.3125$
+		- only the Maserati Bora exceeds it, $h_{ii}\approx0.508$ — its combination of `disp, hp, drat, wt` sits far enough from the other 31 cars' predictor values to pull extra weight in the fit, regardless of its actual mpg
+
+- **Problem 3 — derive the hat matrix's symmetry and idempotence from scratch, cold.** Show $H'=H$ and $H^2=H$ for $H=X(X'X)^{-1}X'$.
+	- *Solution.*
+		- **$H'=H$:**
+			- $H'=[X(X'X)^{-1}X']'=(X')'[(X'X)^{-1}]'X'$, reversing the order of the product's transpose
+			- $(X')'=X$
+			- $X'X$ is symmetric, since $(X'X)'=X'(X')'=X'X$, so its inverse is symmetric too: $[(X'X)^{-1}]'=(X'X)^{-1}$
+			- substituting both back in: $H'=X(X'X)^{-1}X'=H$
+		- **$H^2=H$:**
+			- $H^2=X(X'X)^{-1}X'\cdot X(X'X)^{-1}X'$
+			- the middle factors multiply to $X'X$: $H^2=X(X'X)^{-1}[X'X](X'X)^{-1}X'$
+			- $(X'X)^{-1}(X'X)=I$, collapsing the bracketed piece
+			- $H^2=X\cdot I\cdot(X'X)^{-1}X'=X(X'X)^{-1}X'=H$
